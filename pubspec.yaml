@@ -1,0 +1,68 @@
+name: personal_finance_tracker
+description: "A premium desktop-first personal finance application with Apple-style design."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  lucide_icons: any
+
+  # State Management
+  flutter_riverpod: any
+  riverpod_annotation: any
+
+  # Routing
+  go_router: any
+
+  # Database (Drift)
+  drift: any
+  sqlite3_flutter_libs: any
+  path_provider: any
+  path: any
+
+  # Supabase Sync
+  supabase_flutter: any
+
+  # Charts
+  fl_chart: any
+
+  # Utilities
+  intl: any
+  uuid: any
+  equatable: any
+  collection: any
+
+  # File Operations
+  file_picker: any
+  csv: any
+
+  # Animations
+  flutter_animate: any
+
+  # Window Management (Linux Desktop)
+  window_manager: any
+
+  # Typography
+  google_fonts: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  
+  # Drift Code Generation
+  drift_dev: any
+  build_runner: any
+  
+  # Riverpod Code Generation
+  riverpod_generator: any
+
+flutter:
+  uses-material-design: true
