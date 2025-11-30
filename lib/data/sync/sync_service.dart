@@ -1,7 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../drift/database.dart';
-import '../drift/daos/daos.dart';
+import '../drift/tables/categories_table.dart';
+import '../drift/tables/transactions_table.dart';
 
 /// Service for synchronizing local Drift database with Supabase
 /// Uses timestamp-based UPSERT logic for conflict resolution
@@ -75,7 +76,7 @@ class SyncService {
     count += await _pushTable(
       tableName: 'wallets',
       getLocalData: () => _database.walletsDao.getAllWallets(includeArchived: true),
-      toJson: (wallet) => _walletToJson(wallet as WalletEntity),
+      toJson: (wallet) => _walletToJson(wallet),
       lastSync: lastSync,
     );
 
@@ -83,7 +84,7 @@ class SyncService {
     count += await _pushTable(
       tableName: 'categories',
       getLocalData: () => _database.categoriesDao.getAllCategories(),
-      toJson: (category) => _categoryToJson(category as CategoryEntity),
+      toJson: (category) => _categoryToJson(category),
       lastSync: lastSync,
     );
 
@@ -91,7 +92,7 @@ class SyncService {
     count += await _pushTable(
       tableName: 'transactions',
       getLocalData: () => _database.transactionsDao.getAllTransactions(),
-      toJson: (transaction) => _transactionToJson(transaction as TransactionEntity),
+      toJson: (transaction) => _transactionToJson(transaction),
       lastSync: lastSync,
     );
 

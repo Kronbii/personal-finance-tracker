@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/screens/dashboard/dashboard_screen.dart';
 import '../../presentation/screens/transactions/transactions_screen.dart';
 import '../../presentation/screens/insights/insights_screen.dart';
+import '../../presentation/screens/monthly_insights/monthly_insights_screen.dart';
 import '../../presentation/screens/bulk_entry/bulk_entry_screen.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
 import '../shell/app_shell.dart';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String dashboard = '/';
   static const String transactions = '/transactions';
   static const String insights = '/insights';
+  static const String monthlyInsights = '/monthly-insights';
   static const String bulkEntry = '/bulk-entry';
   static const String settings = '/settings';
 }
@@ -52,6 +54,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => CustomTransitionPage(
               key: state.pageKey,
               child: const InsightsScreen(),
+              transitionsBuilder: _fadeTransition,
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.monthlyInsights,
+            name: 'monthly-insights',
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const MonthlyInsightsScreen(),
               transitionsBuilder: _fadeTransition,
             ),
           ),

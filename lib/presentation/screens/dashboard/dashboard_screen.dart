@@ -13,6 +13,7 @@ import '../../widgets/category_pie_chart.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/sync_button.dart';
 import '../../widgets/wallet_card.dart';
+import '../settings/widgets/add_wallet_modal.dart';
 import 'providers/dashboard_providers.dart';
 
 /// Dashboard screen - Main overview of financial data
@@ -377,8 +378,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
               TextButton.icon(
-                onPressed: () {
-                  // TODO: Navigate to add wallet
+                onPressed: () async {
+                  await AddWalletModal.show(context);
                 },
                 icon: const Icon(LucideIcons.plus, size: 16),
                 label: const Text('Add'),
@@ -464,8 +465,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Navigate to add wallet
+            onPressed: () async {
+              await AddWalletModal.show(context);
             },
             icon: const Icon(LucideIcons.plus, size: 18),
             label: const Text('Add Wallet'),

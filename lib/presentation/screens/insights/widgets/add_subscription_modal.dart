@@ -716,7 +716,7 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           onChanged: (value) {
             setState(() => _autoCreateTransaction = value);
           },
-          activeColor: AppColors.accentBlue,
+          activeThumbColor: AppColors.accentBlue,
         ),
       ],
     );

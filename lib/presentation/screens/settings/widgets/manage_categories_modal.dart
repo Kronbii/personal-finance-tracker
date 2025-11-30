@@ -326,7 +326,7 @@ class _ManageCategoriesModalState
           ],
         ),
       ),
-    ).animate(delay: Duration(milliseconds: index * 30)).fadeIn(duration: 300.ms);
+    );
   }
 
   Widget _buildAddButton(bool isDark, CategoryType type) {

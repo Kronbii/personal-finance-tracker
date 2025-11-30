@@ -150,7 +150,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           trailing: Switch(
             value: isDark,
             onChanged: (_) => themeNotifier.toggle(),
-            activeColor: AppColors.accentBlue,
+            activeThumbColor: AppColors.accentBlue,
           ),
         ),
         _buildDivider(isDark),
@@ -616,6 +616,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
 
       // Show results
+      if (!mounted) return;
+      
       final message = importResult.successful > 0
           ? 'Successfully imported ${importResult.successful} transaction${importResult.successful != 1 ? 's' : ''}'
           : 'No transactions were imported';
@@ -709,12 +711,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              // TODO: Implement clear data
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Clear data coming soon')),
-              );
+              await _clearAllData();
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.accentRed),
             child: const Text('Clear All'),
@@ -722,6 +721,81 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _clearAllData() async {
+    try {
+      // Show loading indicator
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final database = ref.read(databaseProvider);
+      await database.clearAllData();
+
+      // Close loading dialog safely
+      if (mounted && Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(LucideIcons.check, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'All data cleared successfully',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog safely if still open
+      if (mounted && Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Failed to clear data: ${e.toString()}',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.accentRed,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _editWallet(WalletEntity wallet) async {

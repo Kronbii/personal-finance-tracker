@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../data/drift/database.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../transactions/providers/transaction_providers.dart';
 
 /// Provider for all wallets
 final walletsProvider = StreamProvider<List<WalletEntity>>((ref) {
@@ -29,7 +30,12 @@ final currentMonthTransactionsProvider =
 });
 
 /// Provider for wallet balances (computed from transactions)
+/// Automatically updates when transactions change
 final walletBalancesProvider = FutureProvider<Map<String, double>>((ref) async {
+  // Watch all transactions stream to trigger recalculation when transactions change
+  // (wallet balances need all transactions, not just current month)
+  ref.watch(allTransactionsProvider);
+  
   final wallets = await ref.watch(walletsProvider.future);
   final transactionsDao = ref.watch(transactionsDaoProvider);
 
@@ -41,7 +47,11 @@ final walletBalancesProvider = FutureProvider<Map<String, double>>((ref) async {
 });
 
 /// Provider for monthly income total
+/// Automatically updates when transactions change
 final monthlyIncomeProvider = FutureProvider<double>((ref) async {
+  // Watch transactions stream to trigger recalculation when transactions change
+  ref.watch(currentMonthTransactionsProvider);
+  
   final now = DateTime.now();
   final start = DateTime(now.year, now.month, 1);
   final end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
@@ -49,7 +59,11 @@ final monthlyIncomeProvider = FutureProvider<double>((ref) async {
 });
 
 /// Provider for monthly expenses total
+/// Automatically updates when transactions change
 final monthlyExpensesProvider = FutureProvider<double>((ref) async {
+  // Watch transactions stream to trigger recalculation when transactions change
+  ref.watch(currentMonthTransactionsProvider);
+  
   final now = DateTime.now();
   final start = DateTime(now.year, now.month, 1);
   final end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
@@ -57,13 +71,22 @@ final monthlyExpensesProvider = FutureProvider<double>((ref) async {
 });
 
 /// Provider for all-time net savings
+/// Automatically updates when transactions change
 final allTimeSavingsProvider = FutureProvider<double>((ref) async {
+  // Watch all transactions stream to trigger recalculation when transactions change
+  // (all-time savings need all transactions, not just current month)
+  ref.watch(allTransactionsProvider);
+  
   return ref.watch(transactionsDaoProvider).getAllTimeNetSavings();
 });
 
 /// Provider for spending by category this month
+/// Automatically updates when transactions change
 final monthlySpendingByCategoryProvider =
     FutureProvider<Map<String, double>>((ref) async {
+  // Watch transactions stream to trigger recalculation when transactions change
+  ref.watch(currentMonthTransactionsProvider);
+  
   final now = DateTime.now();
   final start = DateTime(now.year, now.month, 1);
   final end = DateTime(now.year, now.month + 1, 0, 23, 59, 59);

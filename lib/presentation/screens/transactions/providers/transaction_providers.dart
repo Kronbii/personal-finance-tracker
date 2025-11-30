@@ -61,23 +61,23 @@ class SearchQueryNotifier extends Notifier<String> {
 
 /// Provider for selected date range (null = no date filter)
 final transactionDateRangeProvider =
-    NotifierProvider<DateRangeNotifier, DateTimeRange?>(
+    NotifierProvider<DateRangeNotifier, TransactionDateRange?>(
   DateRangeNotifier.new,
 );
 
-class DateRangeNotifier extends Notifier<DateTimeRange?> {
+class DateRangeNotifier extends Notifier<TransactionDateRange?> {
   @override
-  DateTimeRange? build() => null;
+  TransactionDateRange? build() => null;
 
-  void setRange(DateTimeRange? range) => state = range;
+  void setRange(TransactionDateRange? range) => state = range;
 }
 
-/// Date range class
-class DateTimeRange {
+/// Date range class for transaction filtering
+class TransactionDateRange {
   final DateTime start;
   final DateTime end;
 
-  DateTimeRange({required this.start, required this.end});
+  TransactionDateRange({required this.start, required this.end});
 }
 
 /// Provider for all transactions

@@ -12,7 +12,10 @@ import 'app/theme/theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize window manager for desktop (skip on Linux if it fails)
+  // Initialize window manager for desktop
+  // Note: On Linux, some window_manager methods may not be fully supported,
+  // which is expected and handled gracefully. GTK warnings may appear in console
+  // but don't affect app functionality.
   if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
     try {
       await windowManager.ensureInitialized();
@@ -22,7 +25,7 @@ void main() async {
         size: Size(1400, 900),
         minimumSize: Size(1024, 700),
         center: true,
-        backgroundColor: const Color(0xFF0D0D0F), // Dark background color
+        backgroundColor: Color(0xFF0D0D0F), // Dark background color
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.hidden,
         title: 'Personal Finance Tracker',
@@ -51,7 +54,15 @@ void main() async {
           await control();
         } catch (e) {
           // Ignore if not supported on this platform
-          debugPrint('Window control failed (this is OK on some platforms): $e');
+          // Only print in debug mode and suppress repeated errors
+          if (kDebugMode) {
+            // Suppress verbose window_manager errors on Linux
+            final errorStr = e.toString();
+            if (!errorStr.contains('MissingPluginException') || 
+                !Platform.isLinux) {
+              debugPrint('Window control failed (this is OK on some platforms): $e');
+            }
+          }
         }
       }
     } catch (e) {

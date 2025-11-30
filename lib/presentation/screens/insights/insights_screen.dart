@@ -12,6 +12,7 @@ import '../../../data/drift/tables/debts_table.dart';
 import '../../../data/drift/tables/subscriptions_table.dart';
 import '../../../data/services/currency_formatter.dart';
 import '../../../data/providers/currency_provider.dart';
+import '../../widgets/apple_dropdown.dart';
 import '../../widgets/category_pie_chart.dart';
 import '../../widgets/line_chart_widget.dart';
 import '../../widgets/stat_card.dart';
@@ -37,9 +38,9 @@ class InsightsScreen extends ConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: CustomScrollView(
         slivers: [
-          // Header
+          // Header with year selector
           SliverToBoxAdapter(
-            child: _buildHeader(isDark),
+            child: _buildHeaderWithYearSelector(ref, isDark),
           ),
 
           // Tab bar
@@ -66,30 +67,59 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeaderWithYearSelector(WidgetRef ref, bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(32),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Insights',
-            style: AppTypography.displaySmall(
-              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Insights',
+                  style: AppTypography.displaySmall(
+                    isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1, end: 0),
+                const SizedBox(height: 8),
+                Text(
+                  'Deep dive into your financial patterns',
+                  style: AppTypography.bodyMedium(
+                    isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
+              ],
             ),
-          ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1, end: 0),
-          const SizedBox(height: 8),
-          Text(
-            'Deep dive into your financial patterns',
-            style: AppTypography.bodyMedium(
-              isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
-            ),
-          ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
+          ),
+          _buildYearSelector(ref, isDark),
         ],
       ),
     );
+  }
+
+  Widget _buildYearSelector(WidgetRef ref, bool isDark) {
+    final selectedYear = ref.watch(selectedInsightsYearProvider);
+    final currentYear = DateTime.now().year;
+    final years = List.generate(10, (i) => currentYear - i);
+
+    return AppleDropdown<int>(
+      value: selectedYear,
+      isDark: isDark,
+      leadingIcon: LucideIcons.calendar,
+      items: years
+          .map((y) => AppleDropdownItem(
+                value: y,
+                label: y.toString(),
+              ))
+          .toList(),
+      onChanged: (value) {
+        ref.read(selectedInsightsYearProvider.notifier).setYear(value);
+      },
+    ).animate(delay: 150.ms).fadeIn(duration: 400.ms);
   }
 
   Widget _buildTabBar(

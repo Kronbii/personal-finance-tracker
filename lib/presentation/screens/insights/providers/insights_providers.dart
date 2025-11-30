@@ -19,15 +19,28 @@ class InsightsTabNotifier extends Notifier<InsightsTab> {
   void setTab(InsightsTab tab) => state = tab;
 }
 
-/// Provider for monthly spending data (last 6 months)
+/// Provider for selected year in insights
+final selectedInsightsYearProvider =
+    NotifierProvider<SelectedInsightsYearNotifier, int>(
+  SelectedInsightsYearNotifier.new,
+);
+
+class SelectedInsightsYearNotifier extends Notifier<int> {
+  @override
+  int build() => DateTime.now().year;
+
+  void setYear(int year) => state = year;
+}
+
+/// Provider for monthly spending data (12 months for selected year)
 final monthlySpendingProvider =
     FutureProvider<List<MonthlyData>>((ref) async {
   final transactionsDao = ref.watch(transactionsDaoProvider);
-  final now = DateTime.now();
+  final selectedYear = ref.watch(selectedInsightsYearProvider);
   final results = <MonthlyData>[];
 
-  for (int i = 5; i >= 0; i--) {
-    final month = DateTime(now.year, now.month - i, 1);
+  for (int i = 1; i <= 12; i++) {
+    final month = DateTime(selectedYear, i, 1);
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
 
     final expenses = await transactionsDao.getTotalExpenses(month, end);
@@ -40,15 +53,15 @@ final monthlySpendingProvider =
   return results;
 });
 
-/// Provider for monthly income data (last 6 months)
+/// Provider for monthly income data (12 months for selected year)
 final monthlyIncomeDataProvider =
     FutureProvider<List<MonthlyData>>((ref) async {
   final transactionsDao = ref.watch(transactionsDaoProvider);
-  final now = DateTime.now();
+  final selectedYear = ref.watch(selectedInsightsYearProvider);
   final results = <MonthlyData>[];
 
-  for (int i = 5; i >= 0; i--) {
-    final month = DateTime(now.year, now.month - i, 1);
+  for (int i = 1; i <= 12; i++) {
+    final month = DateTime(selectedYear, i, 1);
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
 
     final income = await transactionsDao.getTotalIncome(month, end);
@@ -61,15 +74,15 @@ final monthlyIncomeDataProvider =
   return results;
 });
 
-/// Provider for monthly savings (income - expenses)
+/// Provider for monthly savings (income - expenses) for selected year
 final monthlySavingsDataProvider =
     FutureProvider<List<MonthlyData>>((ref) async {
   final transactionsDao = ref.watch(transactionsDaoProvider);
-  final now = DateTime.now();
+  final selectedYear = ref.watch(selectedInsightsYearProvider);
   final results = <MonthlyData>[];
 
-  for (int i = 5; i >= 0; i--) {
-    final month = DateTime(now.year, now.month - i, 1);
+  for (int i = 1; i <= 12; i++) {
+    final month = DateTime(selectedYear, i, 1);
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
 
     final income = await transactionsDao.getTotalIncome(month, end);

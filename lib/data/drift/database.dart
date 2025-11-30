@@ -208,6 +208,22 @@ class AppDatabase extends _$AppDatabase {
       batch.insertAll(categories, defaultCategories);
     });
   }
+
+  /// Clears all data from the database and reseeds default categories
+  Future<void> clearAllData() async {
+    // Delete all data from tables in proper order (respecting foreign keys)
+    await delete(transactions).go();
+    await delete(savingsContributions).go();
+    await delete(savingsGoals).go();
+    await delete(debts).go();
+    await delete(subscriptions).go();
+    await delete(wallets).go();
+    await delete(categories).go();
+    await delete(settings).go();
+    
+    // Reseed default categories
+    await _seedDefaultCategories();
+  }
 }
 
 /// Opens a connection to the SQLite database

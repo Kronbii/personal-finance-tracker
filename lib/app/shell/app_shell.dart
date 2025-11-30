@@ -125,6 +125,14 @@ class _AppShellState extends ConsumerState<AppShell> {
                 ),
                 _buildNavItem(
                   index: 3,
+                  icon: LucideIcons.calendarDays,
+                  label: 'Monthly Details',
+                  route: AppRoutes.monthlyInsights,
+                  selectedIndex: selectedIndex,
+                  isDark: isDark,
+                ),
+                _buildNavItem(
+                  index: 4,
                   icon: LucideIcons.fileSpreadsheet,
                   label: 'Bulk Entry',
                   route: AppRoutes.bulkEntry,
@@ -145,7 +153,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 const SizedBox(height: 16),
 
                 _buildNavItem(
-                  index: 4,
+                  index: 5,
                   icon: LucideIcons.settings,
                   label: 'Settings',
                   route: AppRoutes.settings,
@@ -378,8 +386,9 @@ class _AppShellState extends ConsumerState<AppShell> {
   int _getSelectedIndex(String location) {
     if (location.startsWith(AppRoutes.transactions)) return 1;
     if (location.startsWith(AppRoutes.insights)) return 2;
-    if (location.startsWith(AppRoutes.bulkEntry)) return 3;
-    if (location.startsWith(AppRoutes.settings)) return 4;
+    if (location.startsWith(AppRoutes.monthlyInsights)) return 3;
+    if (location.startsWith(AppRoutes.bulkEntry)) return 4;
+    if (location.startsWith(AppRoutes.settings)) return 5;
     return 0; // Dashboard
   }
 }
