@@ -300,19 +300,23 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                 final total = spending.values.fold(0.0, (sum, val) => sum + val);
 
                 return Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                      height: 200,
+                      height: 160,
                       child: CategoryPieChart(
                         data: chartData,
                         totalAmount: total,
                         isDark: isDark,
-                        centerLabel: title,
+                        centerLabel: title.contains('Expense') ? 'Expenses' : 'Income',
                         centerValue: _formatCurrency(total, ref),
+                        showContainer: false,
+                        showLegend: false,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    ...chartData.take(5).map((item) => _buildCategoryRow(
+                    const SizedBox(height: 12),
+                    // Limited to 4 categories to prevent overflow
+                    ...chartData.take(4).map((item) => _buildCategoryRow(
                           isDark: isDark,
                           name: item.name,
                           amount: item.amount,
@@ -320,6 +324,18 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                           percentage: (item.amount / total * 100),
                           ref: ref,
                         )),
+                    if (chartData.length > 4)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '+${chartData.length - 4} more categories',
+                          style: AppTypography.caption(
+                            isDark
+                                ? AppColors.darkTextTertiary
+                                : AppColors.lightTextTertiary,
+                          ),
+                        ),
+                      ),
                   ],
                 );
               },

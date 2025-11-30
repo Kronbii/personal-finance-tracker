@@ -7,6 +7,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/services/currency_formatter.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../../widgets/apple_dropdown.dart';
 
 /// Currency picker modal for selecting default currency and conversion rate
 class CurrencyPickerModal extends ConsumerStatefulWidget {
@@ -210,92 +211,21 @@ class _CurrencyPickerModalState extends ConsumerState<CurrencyPickerModal> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkBackground
-                            : AppColors.lightBackground,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark
-                              ? AppColors.darkDivider
-                              : AppColors.lightDivider,
-                          width: 1,
-                        ),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedCurrency,
-                          isExpanded: true,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          icon: Icon(
-                            LucideIcons.chevronDown,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.lightTextSecondary,
-                          ),
-                          style: AppTypography.bodyMedium(
-                            isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.lightTextPrimary,
-                          ),
-                          items: currencies.map((currency) {
-                            return DropdownMenuItem<String>(
-                              value: currency.code,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentBlue
-                                          .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      currency.symbol,
-                                      style: AppTypography.titleSmall(
-                                        AppColors.accentBlue,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          currency.name,
-                                          style: AppTypography.bodyMedium(
-                                            isDark
-                                                ? AppColors.darkTextPrimary
-                                                : AppColors.lightTextPrimary,
-                                          ),
-                                        ),
-                                        Text(
-                                          currency.code,
-                                          style: AppTypography.bodySmall(
-                                            isDark
-                                                ? AppColors.darkTextSecondary
-                                                : AppColors.lightTextSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _selectedCurrency = value);
-                            }
-                          },
-                        ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppleDropdown<String>(
+                        value: _selectedCurrency,
+                        isDark: isDark,
+                        leadingIcon: LucideIcons.dollarSign,
+                        items: currencies.map((currency) {
+                          return AppleDropdownItem<String>(
+                            value: currency.code,
+                            label: '${currency.symbol} ${currency.name} (${currency.code})',
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedCurrency = value);
+                        },
                       ),
                     ),
                     const SizedBox(height: 32),

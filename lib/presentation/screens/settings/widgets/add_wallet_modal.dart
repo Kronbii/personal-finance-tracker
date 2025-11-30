@@ -10,6 +10,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../../widgets/apple_dropdown.dart';
 
 /// Modal dialog for adding/editing wallets
 class AddWalletModal extends ConsumerStatefulWidget {
@@ -268,63 +269,21 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkSurfaceElevated
-                : AppColors.lightSurfaceHighlight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedCurrency,
-              isExpanded: true,
-              icon: Icon(
-                LucideIcons.chevronDown,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-              dropdownColor:
-                  isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurface,
-              style: AppTypography.bodyMedium(
-                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-              ),
-              items: currencies.map((currency) {
-                return DropdownMenuItem<String>(
-                  value: currency['code'],
-                  child: Row(
-                    children: [
-                      Text(
-                        currency['symbol']!,
-                        style: AppTypography.bodyMedium(
-                          isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.lightTextPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '${currency['name']} (${currency['code']})',
-                          style: AppTypography.bodyMedium(
-                            isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.lightTextPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedCurrency = value);
-                }
-              },
-            ),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String>(
+            value: _selectedCurrency,
+            isDark: isDark,
+            leadingIcon: LucideIcons.dollarSign,
+            items: currencies.map((currency) {
+              return AppleDropdownItem<String>(
+                value: currency['code']!,
+                label: '${currency['symbol']} ${currency['name']} (${currency['code']})',
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedCurrency = value);
+            },
           ),
         ),
       ],

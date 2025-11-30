@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build AppImage for Linux
+# Build AppImage for REE - Personal Finance Tracker
 # Prerequisites: flutter, appimagetool
 
 set -e
@@ -9,8 +9,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$PROJECT_DIR/build/linux/x64/release/bundle"
 APPDIR="$PROJECT_DIR/build/AppDir"
-APP_NAME="Personal Finance Tracker"
-APP_ID="com.kronbii.personal_finance_tracker"
+APP_NAME="REE"
+APP_ID="com.kronbii.ree"
+BINARY_NAME="ree"
 VERSION="1.0.0"
 
 echo "Building Flutter Linux release..."
@@ -20,6 +21,7 @@ flutter build linux --release
 echo "Creating AppDir structure..."
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin"
+mkdir -p "$APPDIR/usr/lib"
 mkdir -p "$APPDIR/usr/share/applications"
 mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 mkdir -p "$APPDIR/usr/share/metainfo"
@@ -27,51 +29,49 @@ mkdir -p "$APPDIR/usr/share/metainfo"
 echo "Copying bundle..."
 cp -r "$BUILD_DIR"/* "$APPDIR/usr/bin/"
 
+# Copy libraries to lib folder
+if [ -d "$BUILD_DIR/lib" ]; then
+    cp -r "$BUILD_DIR/lib"/* "$APPDIR/usr/lib/" 2>/dev/null || true
+fi
+
 echo "Creating desktop entry..."
-cat > "$APPDIR/usr/share/applications/$APP_ID.desktop" << EOF
+cat > "$APPDIR/$APP_ID.desktop" << EOF
 [Desktop Entry]
 Name=$APP_NAME
-Comment=A premium personal finance tracker
-Exec=personal_finance_tracker
+Comment=REE - Personal Finance Tracker
+Exec=$BINARY_NAME
 Icon=$APP_ID
 Terminal=false
 Type=Application
 Categories=Office;Finance;
-StartupWMClass=personal_finance_tracker
+StartupWMClass=$BINARY_NAME
 EOF
 
-# Copy desktop file to AppDir root (required by AppImage)
-cp "$APPDIR/usr/share/applications/$APP_ID.desktop" "$APPDIR/"
+# Also copy to standard location
+cp "$APPDIR/$APP_ID.desktop" "$APPDIR/usr/share/applications/"
 
 echo "Creating AppRun script..."
-cat > "$APPDIR/AppRun" << 'EOF'
+cat > "$APPDIR/AppRun" << 'APPRUNEOF'
 #!/bin/bash
 SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin/:${PATH}"
-export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
-exec "${HERE}/usr/bin/personal_finance_tracker" "$@"
-EOF
+export LD_LIBRARY_PATH="${HERE}/usr/bin/lib:${HERE}/usr/lib:${LD_LIBRARY_PATH}"
+cd "${HERE}/usr/bin"
+exec "${HERE}/usr/bin/ree" "$@"
+APPRUNEOF
 chmod +x "$APPDIR/AppRun"
 
-# Create a placeholder icon (you should replace this with your actual icon)
-echo "Creating placeholder icon..."
-cat > "$APPDIR/usr/share/icons/hicolor/256x256/apps/$APP_ID.svg" << 'EOF'
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0A84FF;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#5E5CE6;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="256" height="256" rx="48" fill="url(#grad1)"/>
-  <path d="M128 48c-44.183 0-80 35.817-80 80s35.817 80 80 80 80-35.817 80-80-35.817-80-80-80zm0 140c-33.137 0-60-26.863-60-60s26.863-60 60-60 60 26.863 60 60-26.863 60-60 60z" fill="white" opacity="0.9"/>
-  <path d="M128 88v40l28 16" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
-</svg>
-EOF
-
-# Copy icon to AppDir root
-cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/$APP_ID.svg" "$APPDIR/$APP_ID.svg"
+echo "Copying app icon..."
+# Use the existing icon if available
+if [ -f "$PROJECT_DIR/linux/icons/ree.png" ]; then
+    cp "$PROJECT_DIR/linux/icons/ree.png" "$APPDIR/$APP_ID.png"
+    cp "$PROJECT_DIR/linux/icons/ree.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/$APP_ID.png"
+    cp "$PROJECT_DIR/linux/icons/ree.png" "$APPDIR/.DirIcon"
+else
+    echo "Warning: Icon not found at linux/icons/ree.png, creating placeholder..."
+    touch "$APPDIR/$APP_ID.png"
+fi
 
 echo "Creating AppStream metadata..."
 cat > "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml" << EOF
@@ -79,7 +79,7 @@ cat > "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml" << EOF
 <component type="desktop-application">
   <id>$APP_ID</id>
   <name>$APP_NAME</name>
-  <summary>A premium personal finance tracker</summary>
+  <summary>REE - Personal Finance Tracker</summary>
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>
   <description>
@@ -91,7 +91,7 @@ cat > "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml" << EOF
   <launchable type="desktop-id">$APP_ID.desktop</launchable>
   <url type="homepage">https://github.com/kronbii/personal-finance-tracker</url>
   <provides>
-    <binary>personal_finance_tracker</binary>
+    <binary>$BINARY_NAME</binary>
   </provides>
   <releases>
     <release version="$VERSION" date="$(date +%Y-%m-%d)"/>
@@ -100,20 +100,38 @@ cat > "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml" << EOF
 EOF
 
 echo "Building AppImage..."
-if ! command -v appimagetool &> /dev/null; then
-    echo "appimagetool not found. Downloading..."
-    wget -O /tmp/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-    chmod +x /tmp/appimagetool
+APPIMAGETOOL=""
+
+# Check for appimagetool in common locations
+if command -v appimagetool &> /dev/null; then
+    APPIMAGETOOL="appimagetool"
+elif [ -x "/tmp/appimagetool" ]; then
     APPIMAGETOOL="/tmp/appimagetool"
 else
-    APPIMAGETOOL="appimagetool"
+    echo "appimagetool not found. Downloading..."
+    wget -q --show-progress -O /tmp/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    chmod +x /tmp/appimagetool
+    APPIMAGETOOL="/tmp/appimagetool"
 fi
 
-ARCH=x86_64 "$APPIMAGETOOL" "$APPDIR" "$PROJECT_DIR/build/Personal_Finance_Tracker-$VERSION-x86_64.AppImage"
+# Run appimagetool (may need --appimage-extract-and-run on some systems)
+ARCH=x86_64 "$APPIMAGETOOL" --appimage-extract-and-run "$APPDIR" "$PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage" || \
+ARCH=x86_64 "$APPIMAGETOOL" "$APPDIR" "$PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage"
 
 echo ""
 echo "========================================"
 echo "AppImage built successfully!"
-echo "Location: $PROJECT_DIR/build/Personal_Finance_Tracker-$VERSION-x86_64.AppImage"
+echo "Location: $PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage"
 echo "========================================"
+
+# Auto-install to ~/.local/bin
+echo "Installing to ~/.local/bin/ree.AppImage..."
+mkdir -p ~/.local/bin
+cp "$PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage" ~/.local/bin/ree.AppImage
+chmod +x ~/.local/bin/ree.AppImage
+
+echo ""
+echo "✓ Installed! You can now launch REE from your app menu."
+echo "  Or run: ~/.local/bin/ree.AppImage"
+
 

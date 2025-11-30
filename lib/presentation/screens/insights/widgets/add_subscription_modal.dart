@@ -12,6 +12,7 @@ import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/drift/tables/subscriptions_table.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
 /// Modal dialog for adding/editing subscriptions
@@ -374,47 +375,21 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkBackground
-                : AppColors.lightBackground,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? AppColors.darkDivider
-                  : AppColors.lightDivider,
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<BillingFrequency>(
-              value: _selectedFrequency,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              icon: Icon(
-                LucideIcons.chevronDown,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-              style: AppTypography.bodyMedium(
-                isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
-              ),
-              items: BillingFrequency.values.map((frequency) {
-                return DropdownMenuItem<BillingFrequency>(
-                  value: frequency,
-                  child: Text(_getFrequencyLabel(frequency)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedFrequency = value);
-                }
-              },
-            ),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<BillingFrequency>(
+            value: _selectedFrequency,
+            isDark: isDark,
+            leadingIcon: LucideIcons.clock,
+            items: BillingFrequency.values.map((frequency) {
+              return AppleDropdownItem<BillingFrequency>(
+                value: frequency,
+                label: _getFrequencyLabel(frequency),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedFrequency = value);
+            },
           ),
         ),
       ],
@@ -434,53 +409,23 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkBackground
-                : AppColors.lightBackground,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? AppColors.darkDivider
-                  : AppColors.lightDivider,
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedWalletId,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              icon: Icon(
-                LucideIcons.chevronDown,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-              style: AppTypography.bodyMedium(
-                isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
-              ),
-              hint: Text(
-                'Select wallet',
-                style: AppTypography.bodyMedium(
-                  isDark
-                      ? AppColors.darkTextTertiary
-                      : AppColors.lightTextTertiary,
-                ),
-              ),
-              items: wallets.map((wallet) {
-                return DropdownMenuItem<String>(
-                  value: wallet.id,
-                  child: Text(wallet.name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() => _selectedWalletId = value);
-              },
-            ),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedWalletId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.wallet,
+            hint: 'Select wallet',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
+              ...wallets.map((wallet) => AppleDropdownItem<String?>(
+                value: wallet.id,
+                label: wallet.name,
+              )),
+            ],
+            onChanged: (value) {
+              setState(() => _selectedWalletId = value);
+            },
           ),
         ),
       ],
@@ -501,53 +446,23 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkBackground
-                : AppColors.lightBackground,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? AppColors.darkDivider
-                  : AppColors.lightDivider,
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedCategoryId,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              icon: Icon(
-                LucideIcons.chevronDown,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-              style: AppTypography.bodyMedium(
-                isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
-              ),
-              hint: Text(
-                'Select category',
-                style: AppTypography.bodyMedium(
-                  isDark
-                      ? AppColors.darkTextTertiary
-                      : AppColors.lightTextTertiary,
-                ),
-              ),
-              items: categories.map((category) {
-                return DropdownMenuItem<String>(
-                  value: category.id,
-                  child: Text(category.name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() => _selectedCategoryId = value);
-              },
-            ),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedCategoryId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.tag,
+            hint: 'Select category',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'Select category'),
+              ...categories.map((category) => AppleDropdownItem<String?>(
+                value: category.id,
+                label: category.name,
+              )),
+            ],
+            onChanged: (value) {
+              setState(() => _selectedCategoryId = value);
+            },
           ),
         ),
       ],

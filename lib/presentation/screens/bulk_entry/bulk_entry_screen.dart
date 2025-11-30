@@ -13,6 +13,7 @@ import '../../../app/theme/theme_provider.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/drift/tables/transactions_table.dart';
 import '../../../data/providers/database_provider.dart';
+import '../../widgets/apple_dropdown.dart';
 import '../dashboard/providers/dashboard_providers.dart';
 
 /// Bulk Entry screen - Multi-row transaction entry
@@ -324,30 +325,42 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
           // Wallet dropdown
           Expanded(
             flex: 3,
-            child: _buildDropdown(
-              isDark: isDark,
-              value: row.selectedWalletId,
-              hint: 'Select wallet',
-              items: wallets
-                  .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
-                  .toList(),
-              onChanged: (value) =>
-                  setState(() => row.selectedWalletId = value),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: AppleDropdown<String?>(
+                value: row.selectedWalletId,
+                isDark: isDark,
+                hint: 'Wallet',
+                items: [
+                  const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
+                  ...wallets.map((w) => AppleDropdownItem<String?>(
+                    value: w.id,
+                    label: w.name,
+                  )),
+                ],
+                onChanged: (value) => setState(() => row.selectedWalletId = value),
+              ),
             ),
           ),
 
           // Category dropdown
           Expanded(
             flex: 3,
-            child: _buildDropdown(
-              isDark: isDark,
-              value: row.selectedCategoryId,
-              hint: 'Select category',
-              items: categories
-                  .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
-                  .toList(),
-              onChanged: (value) =>
-                  setState(() => row.selectedCategoryId = value),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: AppleDropdown<String?>(
+                value: row.selectedCategoryId,
+                isDark: isDark,
+                hint: 'Category',
+                items: [
+                  const AppleDropdownItem<String?>(value: null, label: 'Select category'),
+                  ...categories.map((c) => AppleDropdownItem<String?>(
+                    value: c.id,
+                    label: c.name,
+                  )),
+                ],
+                onChanged: (value) => setState(() => row.selectedCategoryId = value),
+              ),
             ),
           ),
 
@@ -514,57 +527,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown({
-    required bool isDark,
-    required String? value,
-    required String hint,
-    required List<DropdownMenuItem<String>> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkSurfaceElevated
-              : AppColors.lightSurfaceHighlight,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: value,
-            hint: Text(
-              hint,
-              style: AppTypography.bodySmall(
-                isDark
-                    ? AppColors.darkTextTertiary
-                    : AppColors.lightTextTertiary,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            isExpanded: true,
-            isDense: true,
-            icon: Icon(
-              LucideIcons.chevronDown,
-              size: 14,
-              color: isDark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.lightTextSecondary,
-            ),
-            dropdownColor:
-                isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurface,
-            style: AppTypography.bodySmall(
-              isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            ),
-            items: items,
-            onChanged: onChanged,
-          ),
         ),
       ),
     );

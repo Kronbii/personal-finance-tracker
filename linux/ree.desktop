@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=REE
+Comment=REE - Personal Finance Tracker
+Exec=ree
+Icon=ree
+Terminal=false
+Type=Application
+Categories=Office;Finance;
+Keywords=finance;money;budget;tracker;expenses;
+StartupWMClass=ree

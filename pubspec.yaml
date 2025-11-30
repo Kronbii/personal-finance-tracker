@@ -1,5 +1,5 @@
-name: personal_finance_tracker
-description: "A premium desktop-first personal finance application with Apple-style design."
+name: ree
+description: "REE - A premium desktop-first personal finance application with Apple-style design."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -63,6 +63,20 @@ dev_dependencies:
   
   # Riverpod Code Generation
   riverpod_generator: any
+  
+  # App Icon Generator
+  flutter_launcher_icons: any
+
+# App Icon Configuration  
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  platforms:
+    linux:
+      generate: true
+      image_path: "assets/icon/app_icon.png"
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/icon/

@@ -12,6 +12,7 @@ import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/drift/tables/debts_table.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
 /// Modal dialog for adding/editing debts
@@ -599,59 +600,23 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkBackground
-                : AppColors.lightBackground,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? AppColors.darkDivider
-                  : AppColors.lightDivider,
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedWalletId,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              icon: Icon(
-                LucideIcons.chevronDown,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
-              style: AppTypography.bodyMedium(
-                isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
-              ),
-              hint: Text(
-                'Select wallet',
-                style: AppTypography.bodyMedium(
-                  isDark
-                      ? AppColors.darkTextTertiary
-                      : AppColors.lightTextTertiary,
-                ),
-              ),
-              items: [
-                const DropdownMenuItem<String>(
-                  value: null,
-                  child: Text('None'),
-                ),
-                ...wallets.map((wallet) {
-                  return DropdownMenuItem<String>(
-                    value: wallet.id,
-                    child: Text(wallet.name),
-                  );
-                }).toList(),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedWalletId = value);
-              },
-            ),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedWalletId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.wallet,
+            hint: 'Select wallet',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'None'),
+              ...wallets.map((wallet) => AppleDropdownItem<String?>(
+                value: wallet.id,
+                label: wallet.name,
+              )),
+            ],
+            onChanged: (value) {
+              setState(() => _selectedWalletId = value);
+            },
           ),
         ),
       ],

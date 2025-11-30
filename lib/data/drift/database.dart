@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import 'tables/tables.dart';
@@ -229,8 +228,27 @@ class AppDatabase extends _$AppDatabase {
 /// Opens a connection to the SQLite database
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'personal_finance.db'));
+    // Use XDG standard location: ~/.local/share/ree/
+    // This is safer and persists across app updates/reinstalls
+    final home = Platform.environment['HOME'] ?? '/home';
+    final dbFolder = Directory(p.join(home, '.local', 'share', 'ree'));
+    
+    // Create directory if it doesn't exist
+    if (!await dbFolder.exists()) {
+      await dbFolder.create(recursive: true);
+    }
+    
+    final file = File(p.join(dbFolder.path, 'ree.db'));
+    
+    // Migration: copy old database if it exists and new one doesn't
+    if (!await file.exists()) {
+      final oldDbPath = p.join(home, 'Documents', 'personal_finance.db');
+      final oldFile = File(oldDbPath);
+      if (await oldFile.exists()) {
+        await oldFile.copy(file.path);
+      }
+    }
+    
     return NativeDatabase.createInBackground(file);
   });
 }

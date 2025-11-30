@@ -12,6 +12,7 @@ import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/drift/tables/transactions_table.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
 /// Modal dialog for adding/editing transactions
@@ -379,17 +380,22 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        _buildDropdown(
-          isDark: isDark,
-          value: _selectedWalletId,
-          hint: 'Select wallet',
-          items: wallets
-              .map((w) => DropdownMenuItem(
-                    value: w.id,
-                    child: Text(w.name),
-                  ))
-              .toList(),
-          onChanged: (value) => setState(() => _selectedWalletId = value),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedWalletId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.wallet,
+            hint: 'Select wallet',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
+              ...wallets.map((w) => AppleDropdownItem<String?>(
+                value: w.id,
+                label: w.name,
+              )),
+            ],
+            onChanged: (value) => setState(() => _selectedWalletId = value),
+          ),
         ),
       ],
     );
@@ -409,17 +415,22 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        _buildDropdown(
-          isDark: isDark,
-          value: _selectedToWalletId,
-          hint: 'Select destination wallet',
-          items: filteredWallets
-              .map((w) => DropdownMenuItem(
-                    value: w.id,
-                    child: Text(w.name),
-                  ))
-              .toList(),
-          onChanged: (value) => setState(() => _selectedToWalletId = value),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedToWalletId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.arrowRight,
+            hint: 'Select destination wallet',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'Select destination wallet'),
+              ...filteredWallets.map((w) => AppleDropdownItem<String?>(
+                value: w.id,
+                label: w.name,
+              )),
+            ],
+            onChanged: (value) => setState(() => _selectedToWalletId = value),
+          ),
         ),
       ],
     );
@@ -437,64 +448,24 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
           ),
         ),
         const SizedBox(height: 8),
-        _buildDropdown(
-          isDark: isDark,
-          value: _selectedCategoryId,
-          hint: 'Select category',
-          items: categories
-              .map((c) => DropdownMenuItem(
-                    value: c.id,
-                    child: Text(c.name),
-                  ))
-              .toList(),
-          onChanged: (value) => setState(() => _selectedCategoryId = value),
+        SizedBox(
+          width: double.infinity,
+          child: AppleDropdown<String?>(
+            value: _selectedCategoryId,
+            isDark: isDark,
+            leadingIcon: LucideIcons.tag,
+            hint: 'Select category',
+            items: [
+              const AppleDropdownItem<String?>(value: null, label: 'Select category'),
+              ...categories.map((c) => AppleDropdownItem<String?>(
+                value: c.id,
+                label: c.name,
+              )),
+            ],
+            onChanged: (value) => setState(() => _selectedCategoryId = value),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDropdown({
-    required bool isDark,
-    required String? value,
-    required String hint,
-    required List<DropdownMenuItem<String>> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceElevated
-            : AppColors.lightSurfaceHighlight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          hint: Text(
-            hint,
-            style: AppTypography.bodyMedium(
-              isDark
-                  ? AppColors.darkTextTertiary
-                  : AppColors.lightTextTertiary,
-            ),
-          ),
-          isExpanded: true,
-          icon: Icon(
-            LucideIcons.chevronDown,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.lightTextSecondary,
-          ),
-          dropdownColor:
-              isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurface,
-          style: AppTypography.bodyMedium(
-            isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-          ),
-          items: items,
-          onChanged: onChanged,
-        ),
-      ),
     );
   }
 

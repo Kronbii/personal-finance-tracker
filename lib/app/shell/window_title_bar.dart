@@ -124,7 +124,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar>
           const Spacer(),
           // Window title
           Text(
-            'Personal Finance Tracker',
+            'REE',
             style: AppTypography.bodySmall(
               isDark
                   ? AppColors.darkTextSecondary

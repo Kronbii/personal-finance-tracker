@@ -30,6 +30,8 @@ class CategoryPieChart extends StatefulWidget {
   final bool isDark;
   final String centerLabel;
   final String centerValue;
+  final bool showContainer;
+  final bool showLegend;
 
   const CategoryPieChart({
     super.key,
@@ -38,6 +40,8 @@ class CategoryPieChart extends StatefulWidget {
     this.isDark = true,
     this.centerLabel = 'Total',
     this.centerValue = '',
+    this.showContainer = true,
+    this.showLegend = true,
   });
 
   @override
@@ -51,6 +55,11 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) {
       return _buildEmptyState();
+    }
+
+    // If showContainer is false, just return the chart content
+    if (!widget.showContainer) {
+      return _buildChartOnly();
     }
 
     return Container(
@@ -82,72 +91,82 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                 flex: 3,
                 child: SizedBox(
                   height: 200,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PieChart(
-                        PieChartData(
-                          pieTouchData: PieTouchData(
-                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                              setState(() {
-                                if (!event.isInterestedForInteractions ||
-                                    pieTouchResponse == null ||
-                                    pieTouchResponse.touchedSection == null) {
-                                  touchedIndex = -1;
-                                  return;
-                                }
-                                touchedIndex = pieTouchResponse
-                                    .touchedSection!.touchedSectionIndex;
-                              });
-                            },
-                          ),
-                          startDegreeOffset: -90,
-                          borderData: FlBorderData(show: false),
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 60,
-                          sections: _buildSections(),
-                        ),
-                      ),
-                      // Center content
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.centerLabel,
-                            style: AppTypography.caption(
-                              widget.isDark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.lightTextSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.centerValue.isEmpty
-                                ? _formatAmount(widget.totalAmount)
-                                : widget.centerValue,
-                            style: AppTypography.moneySmall(
-                              widget.isDark
-                                  ? AppColors.darkTextPrimary
-                                  : AppColors.lightTextPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  child: _buildPieChartWithCenter(),
                 ),
               ),
-              const SizedBox(width: 24),
-              // Legend
-              Expanded(
-                flex: 2,
-                child: _buildLegend(),
-              ),
+              if (widget.showLegend) ...[
+                const SizedBox(width: 24),
+                // Legend
+                Expanded(
+                  flex: 2,
+                  child: _buildLegend(),
+                ),
+              ],
             ],
           ),
         ],
       ),
     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildChartOnly() {
+    return _buildPieChartWithCenter();
+  }
+
+  Widget _buildPieChartWithCenter() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        PieChart(
+          PieChartData(
+            pieTouchData: PieTouchData(
+              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                setState(() {
+                  if (!event.isInterestedForInteractions ||
+                      pieTouchResponse == null ||
+                      pieTouchResponse.touchedSection == null) {
+                    touchedIndex = -1;
+                    return;
+                  }
+                  touchedIndex = pieTouchResponse
+                      .touchedSection!.touchedSectionIndex;
+                });
+              },
+            ),
+            startDegreeOffset: -90,
+            borderData: FlBorderData(show: false),
+            sectionsSpace: 2,
+            centerSpaceRadius: 50,
+            sections: _buildSections(),
+          ),
+        ),
+        // Center content
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.centerLabel,
+              style: AppTypography.caption(
+                widget.isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              widget.centerValue.isEmpty
+                  ? _formatAmount(widget.totalAmount)
+                  : widget.centerValue,
+              style: AppTypography.moneySmall(
+                widget.isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   List<PieChartSectionData> _buildSections() {
