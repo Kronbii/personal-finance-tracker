@@ -1,152 +1,182 @@
-# Personal Finance Tracker
+<div align="center">
+  <img src="assets/icon/app_icon.png" alt="REE Logo" width="128" height="128">
+  
+  # REE - Personal Finance Tracker
+  
+  **A beautiful, desktop-first personal finance application with Apple-inspired design**
+  
+  [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+  [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
+  [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?logo=linux&logoColor=black)](https://www.linux.org)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+</div>
 
-A premium, desktop-first personal finance application built with Flutter, featuring an Apple-inspired UI design.
+---
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
-![Drift](https://img.shields.io/badge/Drift-SQLite-green)
-![Riverpod](https://img.shields.io/badge/State-Riverpod-purple)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+## ✨ Features
 
-## Features
+### 💰 Financial Management
+- **Multi-Wallet Support** - Track multiple accounts (cash, bank, crypto, etc.)
+- **Transaction Tracking** - Log income, expenses, and transfers with categories
+- **Subscription Management** - Track recurring payments and billing cycles
+- **Debt Tracking** - Monitor money you owe and money owed to you
+- **Savings Goals** - Set and track progress toward financial goals
 
-### Core Functionality
-- 📊 **Dashboard** - Complete financial overview with savings, income/expenses, category breakdowns
-- 💳 **Transactions** - Full transaction management with filters, search, and day-grouped lists
-- 📈 **Insights** - Analytics with spending trends, category breakdowns, subscriptions, and debt tracking
-- ⚡ **Bulk Entry** - Multi-row grid form for rapid transaction entry
-- ⚙️ **Settings** - Theme toggle, wallet/category management, data import/export
+### 📊 Insights & Analytics
+- **Dashboard Overview** - At-a-glance view of your financial health
+- **Category Breakdown** - Beautiful pie charts showing spending by category
+- **Monthly Insights** - Deep dive into any month's finances
+- **Yearly Trends** - Track patterns across the year
+- **Spending Analysis** - Understand where your money goes
 
-### Technical Features
-- 🗄️ **Local Database** - Drift (SQLite) with comprehensive schema
-- 🔄 **Sync Ready** - Supabase sync service architecture
-- 🎨 **Premium UI** - Apple-inspired design with dark/light themes
-- 🖥️ **Desktop Optimized** - Collapsible sidebar, keyboard navigation
-- 📦 **Linux Packaging** - AppImage build script included
+### �� Premium User Experience
+- **Apple-Inspired Design** - Clean, elegant UI with attention to detail
+- **Dark & Light Themes** - Easy on the eyes, day or night
+- **Smooth Animations** - Polished interactions throughout
+- **Desktop Optimized** - Built specifically for keyboard and mouse
 
-## Screenshots
+### 🛠️ Power Features
+- **Bulk Entry Mode** - Add multiple transactions at once
+- **CSV Import/Export** - Backup and migrate your data easily
+- **Custom Categories** - Create and organize your own categories
+- **Multi-Currency** - Display amounts in your preferred currency
 
-*Coming soon*
+---
 
-## Getting Started
+## 📸 Screenshots
+
+<div align="center">
+  <i>Screenshots coming soon</i>
+</div>
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Flutter SDK 3.10+
-- Linux desktop support enabled
+
+- **Flutter SDK** 3.10 or higher
+- **Linux** with desktop support enabled
+- **Git** for cloning the repository
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Kronbii/personal-finance-tracker.git
+   cd personal-finance-tracker
+   ```
+
+2. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Generate database code** (if needed)
+   ```bash
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+
+4. **Run the application**
+   ```bash
+   flutter run -d linux
+   ```
+
+### Building AppImage
+
+To create a distributable AppImage:
+
 ```bash
-git clone https://github.com/your-username/personal-finance-tracker.git
-cd personal-finance-tracker
+bash scripts/build_appimage.sh
 ```
 
-2. Install dependencies:
-```bash
-flutter pub get
-```
+The AppImage will be built and installed to `~/.local/bin/ree.AppImage`.
 
-3. Generate Drift database code:
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
+---
 
-4. Run the application:
-```bash
-flutter run -d linux
-```
-
-## Project Structure
+## 🏗️ Architecture
 
 ```
 lib/
 ├── app/
-│   ├── theme/          # Premium theming system
 │   ├── router/         # GoRouter navigation
-│   └── shell/          # Desktop sidebar shell
+│   ├── shell/          # Desktop shell with sidebar
+│   └── theme/          # Premium theming system
 ├── data/
-│   ├── drift/          # Database layer
-│   │   ├── tables/     # Table definitions
+│   ├── drift/          # SQLite database layer
 │   │   ├── daos/       # Data Access Objects
-│   │   └── database.dart
-│   ├── sync/           # Supabase sync service
-│   └── providers/      # Riverpod providers
-├── domain/
-│   ├── models/         # Domain models
-│   └── repositories/   # Repository interfaces
+│   │   └── tables/     # Table definitions
+│   ├── providers/      # Riverpod providers
+│   └── services/       # Business logic services
 └── presentation/
     ├── screens/        # App screens
     │   ├── dashboard/
     │   ├── transactions/
     │   ├── insights/
+    │   ├── monthly_insights/
     │   ├── bulk_entry/
     │   └── settings/
-    ├── widgets/        # Reusable widgets
-    └── components/     # UI components
+    └── widgets/        # Reusable UI components
 ```
 
-## Database Schema
+### Tech Stack
 
-### Tables
-- **wallets** - Financial accounts with balances
-- **categories** - Expense/income categories
-- **transactions** - All financial transactions
-- **subscriptions** - Recurring payments
-- **debts** - Money owed/lent tracking
-- **savings_goals** - Savings targets
-- **savings_contributions** - Goal contributions
-- **settings** - App configuration
+| Category | Technology |
+|----------|------------|
+| Framework | Flutter 3.x |
+| Language | Dart 3.x |
+| State Management | Riverpod |
+| Local Database | Drift (SQLite) |
+| Navigation | GoRouter |
+| Charts | FL Chart |
+| Icons | Lucide Icons |
 
-## Building for Linux
+---
 
-### AppImage
-```bash
-./scripts/build_appimage.sh
+## 💾 Data Storage
+
+### Development Mode
+When running with `flutter run`, a test database is used at:
+```
+.test_data/ree_test.db  (inside the project)
 ```
 
-The AppImage will be created in `build/Personal_Finance_Tracker-VERSION-x86_64.AppImage`.
-
-### Prerequisites for AppImage
-- `appimagetool` (downloaded automatically if not present)
-
-## Supabase Sync Setup
-
-1. Create a Supabase project
-2. Create tables matching the Drift schema (see `lib/data/drift/tables/`)
-3. Configure RLS policies for security
-4. Add credentials in Settings
-
-### Recommended RLS Policy (Read-Only Safe)
-```sql
--- Enable RLS on all tables
-ALTER TABLE wallets ENABLE ROW LEVEL SECURITY;
--- Add similar for other tables
-
--- Allow authenticated users to read/write their own data
-CREATE POLICY "Users can manage own data" ON wallets
-  FOR ALL USING (auth.uid() = user_id);
+### Production Mode
+The AppImage and release builds use:
+```
+~/.local/share/ree/ree.db
 ```
 
-## Tech Stack
+This separation ensures your real financial data is never affected during development.
 
-- **Framework**: Flutter 3.x
-- **State Management**: Riverpod
-- **Local Database**: Drift (SQLite)
-- **Remote Sync**: Supabase
-- **Routing**: GoRouter
-- **Charts**: FL Chart
-- **Icons**: Lucide Icons
-- **Fonts**: Google Fonts (Inter, Outfit, JetBrains Mono)
+---
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please read the contributing guidelines first.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
 
-## Acknowledgments
+## 📄 License
 
-- Design inspired by Apple's iOS apps (Wallet, Stocks, Fitness)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Design inspired by Apple's iOS/macOS apps
 - Built with Flutter's excellent desktop support
+- Icons by [Lucide](https://lucide.dev/)
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ using Flutter</sub>
+</div>
