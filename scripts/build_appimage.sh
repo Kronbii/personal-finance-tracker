@@ -44,7 +44,7 @@ Icon=$APP_ID
 Terminal=false
 Type=Application
 Categories=Office;Finance;
-StartupWMClass=$BINARY_NAME
+StartupWMClass=$APP_ID
 EOF
 
 # Also copy to standard location

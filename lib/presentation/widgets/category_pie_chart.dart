@@ -249,7 +249,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
+              Flexible(
                 child: Text(
                   data.name,
                   style: AppTypography.bodySmall(
@@ -261,6 +261,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4),
               Text(
                 '${percentage.toStringAsFixed(1)}%',
                 style: AppTypography.labelSmall(

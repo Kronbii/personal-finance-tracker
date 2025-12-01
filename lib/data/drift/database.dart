@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
 import 'tables/tables.dart';
@@ -226,30 +227,48 @@ class AppDatabase extends _$AppDatabase {
 }
 
 /// Opens a connection to the SQLite database
+/// - Debug mode: uses test database inside the project repo
+/// - Release mode: uses production database in ~/.local/share/ree/
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    // Use XDG standard location: ~/.local/share/ree/
-    // This is safer and persists across app updates/reinstalls
-    final home = Platform.environment['HOME'] ?? '/home';
-    final dbFolder = Directory(p.join(home, '.local', 'share', 'ree'));
+    final String dbPath;
     
-    // Create directory if it doesn't exist
-    if (!await dbFolder.exists()) {
-      await dbFolder.create(recursive: true);
-    }
-    
-    final file = File(p.join(dbFolder.path, 'ree.db'));
-    
-    // Migration: copy old database if it exists and new one doesn't
-    if (!await file.exists()) {
-      final oldDbPath = p.join(home, 'Documents', 'personal_finance.db');
-      final oldFile = File(oldDbPath);
-      if (await oldFile.exists()) {
-        await oldFile.copy(file.path);
+    if (kDebugMode) {
+      // DEVELOPMENT: Use test database inside the repo
+      // This keeps your production data safe during testing
+      final repoDir = Directory.current.path;
+      final testDbFolder = Directory(p.join(repoDir, '.test_data'));
+      
+      if (!await testDbFolder.exists()) {
+        await testDbFolder.create(recursive: true);
+      }
+      
+      dbPath = p.join(testDbFolder.path, 'ree_test.db');
+      debugPrint('📦 DEV MODE: Using test database at $dbPath');
+    } else {
+      // PRODUCTION: Use XDG standard location ~/.local/share/ree/
+      // This is the sacred production database
+      final home = Platform.environment['HOME'] ?? '/home';
+      final dbFolder = Directory(p.join(home, '.local', 'share', 'ree'));
+      
+      if (!await dbFolder.exists()) {
+        await dbFolder.create(recursive: true);
+      }
+      
+      dbPath = p.join(dbFolder.path, 'ree.db');
+      
+      // Migration: copy old database if it exists and new one doesn't
+      final file = File(dbPath);
+      if (!await file.exists()) {
+        final oldDbPath = p.join(home, 'Documents', 'personal_finance.db');
+        final oldFile = File(oldDbPath);
+        if (await oldFile.exists()) {
+          await oldFile.copy(dbPath);
+        }
       }
     }
     
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(File(dbPath));
   });
 }
 

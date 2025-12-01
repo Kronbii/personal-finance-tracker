@@ -9,6 +9,7 @@ import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/drift/daos/transactions_dao.dart';
+import '../../../data/drift/tables/transactions_table.dart';
 import '../../../data/services/currency_formatter.dart';
 import '../../../data/providers/currency_provider.dart';
 import '../../widgets/apple_dropdown.dart';
@@ -719,7 +720,7 @@ class MonthlyInsightsScreen extends ConsumerWidget {
     WidgetRef ref,
   ) {
     final color = _parseHexColor(tx.category?.colorHex ?? '#8E8E93');
-    final isExpense = tx.transaction.type == 'expense';
+    final isExpense = tx.transaction.type == TransactionType.expense;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),

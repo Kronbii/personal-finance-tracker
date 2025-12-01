@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../data/drift/database.dart';
 import '../../../../data/drift/daos/transactions_dao.dart';
+import '../../../../data/drift/tables/transactions_table.dart';
 import '../../../../data/providers/database_provider.dart';
 
 /// Selected month for monthly insights
@@ -185,7 +186,7 @@ final topMonthExpensesProvider =
 
   final transactions = await transactionsDao.getTransactionsInRange(start, end);
   final expenses = transactions
-      .where((t) => t.type == 'expense')
+      .where((t) => t.type == TransactionType.expense)
       .toList()
     ..sort((a, b) => b.amount.compareTo(a.amount));
 
@@ -222,7 +223,7 @@ final topMonthIncomesProvider =
 
   final transactions = await transactionsDao.getTransactionsInRange(start, end);
   final incomes = transactions
-      .where((t) => t.type == 'income')
+      .where((t) => t.type == TransactionType.income)
       .toList()
     ..sort((a, b) => b.amount.compareTo(a.amount));
 
