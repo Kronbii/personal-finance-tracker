@@ -635,6 +635,523 @@ class WalletsCompanion extends UpdateCompanion<WalletEntity> {
   }
 }
 
+class $WalletBalancesTable extends WalletBalances
+    with TableInfo<$WalletBalancesTable, WalletBalanceEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WalletBalancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _walletIdMeta = const VerificationMeta(
+    'walletId',
+  );
+  @override
+  late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
+    'wallet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _yearMeta = const VerificationMeta('year');
+  @override
+  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+    'year',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _monthMeta = const VerificationMeta('month');
+  @override
+  late final GeneratedColumn<int> month = GeneratedColumn<int>(
+    'month',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _balanceMeta = const VerificationMeta(
+    'balance',
+  );
+  @override
+  late final GeneratedColumn<double> balance = GeneratedColumn<double>(
+    'balance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    walletId,
+    year,
+    month,
+    balance,
+    note,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wallet_balances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WalletBalanceEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('wallet_id')) {
+      context.handle(
+        _walletIdMeta,
+        walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_walletIdMeta);
+    }
+    if (data.containsKey('year')) {
+      context.handle(
+        _yearMeta,
+        year.isAcceptableOrUnknown(data['year']!, _yearMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_yearMeta);
+    }
+    if (data.containsKey('month')) {
+      context.handle(
+        _monthMeta,
+        month.isAcceptableOrUnknown(data['month']!, _monthMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_monthMeta);
+    }
+    if (data.containsKey('balance')) {
+      context.handle(
+        _balanceMeta,
+        balance.isAcceptableOrUnknown(data['balance']!, _balanceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_balanceMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WalletBalanceEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WalletBalanceEntity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      walletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wallet_id'],
+      )!,
+      year: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}year'],
+      )!,
+      month: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}month'],
+      )!,
+      balance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}balance'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WalletBalancesTable createAlias(String alias) {
+    return $WalletBalancesTable(attachedDatabase, alias);
+  }
+}
+
+class WalletBalanceEntity extends DataClass
+    implements Insertable<WalletBalanceEntity> {
+  /// Unique identifier (UUID)
+  final String id;
+
+  /// Wallet ID (foreign key to wallets)
+  final String walletId;
+
+  /// Year of the balance entry
+  final int year;
+
+  /// Month of the balance entry (1-12)
+  final int month;
+
+  /// Balance amount at the end of this month
+  final double balance;
+
+  /// Optional note about this balance entry
+  final String? note;
+
+  /// Creation timestamp
+  final DateTime createdAt;
+
+  /// Last update timestamp
+  final DateTime updatedAt;
+  const WalletBalanceEntity({
+    required this.id,
+    required this.walletId,
+    required this.year,
+    required this.month,
+    required this.balance,
+    this.note,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['wallet_id'] = Variable<String>(walletId);
+    map['year'] = Variable<int>(year);
+    map['month'] = Variable<int>(month);
+    map['balance'] = Variable<double>(balance);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WalletBalancesCompanion toCompanion(bool nullToAbsent) {
+    return WalletBalancesCompanion(
+      id: Value(id),
+      walletId: Value(walletId),
+      year: Value(year),
+      month: Value(month),
+      balance: Value(balance),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WalletBalanceEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WalletBalanceEntity(
+      id: serializer.fromJson<String>(json['id']),
+      walletId: serializer.fromJson<String>(json['walletId']),
+      year: serializer.fromJson<int>(json['year']),
+      month: serializer.fromJson<int>(json['month']),
+      balance: serializer.fromJson<double>(json['balance']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'walletId': serializer.toJson<String>(walletId),
+      'year': serializer.toJson<int>(year),
+      'month': serializer.toJson<int>(month),
+      'balance': serializer.toJson<double>(balance),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WalletBalanceEntity copyWith({
+    String? id,
+    String? walletId,
+    int? year,
+    int? month,
+    double? balance,
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => WalletBalanceEntity(
+    id: id ?? this.id,
+    walletId: walletId ?? this.walletId,
+    year: year ?? this.year,
+    month: month ?? this.month,
+    balance: balance ?? this.balance,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  WalletBalanceEntity copyWithCompanion(WalletBalancesCompanion data) {
+    return WalletBalanceEntity(
+      id: data.id.present ? data.id.value : this.id,
+      walletId: data.walletId.present ? data.walletId.value : this.walletId,
+      year: data.year.present ? data.year.value : this.year,
+      month: data.month.present ? data.month.value : this.month,
+      balance: data.balance.present ? data.balance.value : this.balance,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WalletBalanceEntity(')
+          ..write('id: $id, ')
+          ..write('walletId: $walletId, ')
+          ..write('year: $year, ')
+          ..write('month: $month, ')
+          ..write('balance: $balance, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    walletId,
+    year,
+    month,
+    balance,
+    note,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WalletBalanceEntity &&
+          other.id == this.id &&
+          other.walletId == this.walletId &&
+          other.year == this.year &&
+          other.month == this.month &&
+          other.balance == this.balance &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WalletBalancesCompanion extends UpdateCompanion<WalletBalanceEntity> {
+  final Value<String> id;
+  final Value<String> walletId;
+  final Value<int> year;
+  final Value<int> month;
+  final Value<double> balance;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const WalletBalancesCompanion({
+    this.id = const Value.absent(),
+    this.walletId = const Value.absent(),
+    this.year = const Value.absent(),
+    this.month = const Value.absent(),
+    this.balance = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WalletBalancesCompanion.insert({
+    required String id,
+    required String walletId,
+    required int year,
+    required int month,
+    required double balance,
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       walletId = Value(walletId),
+       year = Value(year),
+       month = Value(month),
+       balance = Value(balance);
+  static Insertable<WalletBalanceEntity> custom({
+    Expression<String>? id,
+    Expression<String>? walletId,
+    Expression<int>? year,
+    Expression<int>? month,
+    Expression<double>? balance,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (walletId != null) 'wallet_id': walletId,
+      if (year != null) 'year': year,
+      if (month != null) 'month': month,
+      if (balance != null) 'balance': balance,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WalletBalancesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? walletId,
+    Value<int>? year,
+    Value<int>? month,
+    Value<double>? balance,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return WalletBalancesCompanion(
+      id: id ?? this.id,
+      walletId: walletId ?? this.walletId,
+      year: year ?? this.year,
+      month: month ?? this.month,
+      balance: balance ?? this.balance,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (walletId.present) {
+      map['wallet_id'] = Variable<String>(walletId.value);
+    }
+    if (year.present) {
+      map['year'] = Variable<int>(year.value);
+    }
+    if (month.present) {
+      map['month'] = Variable<int>(month.value);
+    }
+    if (balance.present) {
+      map['balance'] = Variable<double>(balance.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WalletBalancesCompanion(')
+          ..write('id: $id, ')
+          ..write('walletId: $walletId, ')
+          ..write('year: $year, ')
+          ..write('month: $month, ')
+          ..write('balance: $balance, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CategoriesTable extends Categories
     with TableInfo<$CategoriesTable, CategoryEntity> {
   @override
@@ -722,6 +1239,21 @@ class $CategoriesTable extends Categories
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isEnabledMeta = const VerificationMeta(
+    'isEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+    'is_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -767,6 +1299,7 @@ class $CategoriesTable extends Categories
     colorHex,
     parentId,
     isDefault,
+    isEnabled,
     sortOrder,
     createdAt,
     updatedAt,
@@ -818,6 +1351,12 @@ class $CategoriesTable extends Categories
       context.handle(
         _isDefaultMeta,
         isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+      );
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(
+        _isEnabledMeta,
+        isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta),
       );
     }
     if (data.containsKey('sort_order')) {
@@ -877,6 +1416,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.bool,
         data['${effectivePrefix}is_default'],
       )!,
+      isEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_enabled'],
+      )!,
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -923,6 +1466,9 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
   /// Whether this is a system default category
   final bool isDefault;
 
+  /// Whether this category is enabled (visible in dropdowns)
+  final bool isEnabled;
+
   /// Display order for sorting
   final int sortOrder;
 
@@ -939,6 +1485,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
     required this.colorHex,
     this.parentId,
     required this.isDefault,
+    required this.isEnabled,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -959,6 +1506,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
       map['parent_id'] = Variable<String>(parentId);
     }
     map['is_default'] = Variable<bool>(isDefault);
+    map['is_enabled'] = Variable<bool>(isEnabled);
     map['sort_order'] = Variable<int>(sortOrder);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -976,6 +1524,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
           ? const Value.absent()
           : Value(parentId),
       isDefault: Value(isDefault),
+      isEnabled: Value(isEnabled),
       sortOrder: Value(sortOrder),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -995,6 +1544,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
       colorHex: serializer.fromJson<String>(json['colorHex']),
       parentId: serializer.fromJson<String?>(json['parentId']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -1011,6 +1561,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
       'colorHex': serializer.toJson<String>(colorHex),
       'parentId': serializer.toJson<String?>(parentId),
       'isDefault': serializer.toJson<bool>(isDefault),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -1025,6 +1576,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
     String? colorHex,
     Value<String?> parentId = const Value.absent(),
     bool? isDefault,
+    bool? isEnabled,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1036,6 +1588,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
     colorHex: colorHex ?? this.colorHex,
     parentId: parentId.present ? parentId.value : this.parentId,
     isDefault: isDefault ?? this.isDefault,
+    isEnabled: isEnabled ?? this.isEnabled,
     sortOrder: sortOrder ?? this.sortOrder,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -1049,6 +1602,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
       colorHex: data.colorHex.present ? data.colorHex.value : this.colorHex,
       parentId: data.parentId.present ? data.parentId.value : this.parentId,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1065,6 +1619,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
           ..write('colorHex: $colorHex, ')
           ..write('parentId: $parentId, ')
           ..write('isDefault: $isDefault, ')
+          ..write('isEnabled: $isEnabled, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1081,6 +1636,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
     colorHex,
     parentId,
     isDefault,
+    isEnabled,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1096,6 +1652,7 @@ class CategoryEntity extends DataClass implements Insertable<CategoryEntity> {
           other.colorHex == this.colorHex &&
           other.parentId == this.parentId &&
           other.isDefault == this.isDefault &&
+          other.isEnabled == this.isEnabled &&
           other.sortOrder == this.sortOrder &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -1109,6 +1666,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
   final Value<String> colorHex;
   final Value<String?> parentId;
   final Value<bool> isDefault;
+  final Value<bool> isEnabled;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -1121,6 +1679,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
     this.colorHex = const Value.absent(),
     this.parentId = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.isEnabled = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1134,6 +1693,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
     this.colorHex = const Value.absent(),
     this.parentId = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.isEnabled = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1149,6 +1709,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
     Expression<String>? colorHex,
     Expression<String>? parentId,
     Expression<bool>? isDefault,
+    Expression<bool>? isEnabled,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1162,6 +1723,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
       if (colorHex != null) 'color_hex': colorHex,
       if (parentId != null) 'parent_id': parentId,
       if (isDefault != null) 'is_default': isDefault,
+      if (isEnabled != null) 'is_enabled': isEnabled,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1177,6 +1739,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
     Value<String>? colorHex,
     Value<String?>? parentId,
     Value<bool>? isDefault,
+    Value<bool>? isEnabled,
     Value<int>? sortOrder,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -1190,6 +1753,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
       colorHex: colorHex ?? this.colorHex,
       parentId: parentId ?? this.parentId,
       isDefault: isDefault ?? this.isDefault,
+      isEnabled: isEnabled ?? this.isEnabled,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -1223,6 +1787,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
     }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -1248,6 +1815,7 @@ class CategoriesCompanion extends UpdateCompanion<CategoryEntity> {
           ..write('colorHex: $colorHex, ')
           ..write('parentId: $parentId, ')
           ..write('isDefault: $isDefault, ')
+          ..write('isEnabled: $isEnabled, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -1297,9 +1865,9 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
     'wallet_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _categoryIdMeta = const VerificationMeta(
     'categoryId',
@@ -1446,8 +2014,6 @@ class $TransactionsTable extends Transactions
         _walletIdMeta,
         walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_walletIdMeta);
     }
     if (data.containsKey('category_id')) {
       context.handle(
@@ -1540,7 +2106,7 @@ class $TransactionsTable extends Transactions
       walletId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}wallet_id'],
-      )!,
+      ),
       categoryId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
@@ -1600,8 +2166,8 @@ class TransactionEntity extends DataClass
   /// Transaction type: expense, income, or transfer
   final TransactionType type;
 
-  /// Associated wallet ID (source wallet for transfers)
-  final String walletId;
+  /// Associated wallet ID (nullable - wallets are for balance tracking only)
+  final String? walletId;
 
   /// Category ID (nullable for transfers)
   final String? categoryId;
@@ -1633,7 +2199,7 @@ class TransactionEntity extends DataClass
     required this.id,
     required this.amount,
     required this.type,
-    required this.walletId,
+    this.walletId,
     this.categoryId,
     this.toWalletId,
     required this.date,
@@ -1654,7 +2220,9 @@ class TransactionEntity extends DataClass
         $TransactionsTable.$convertertype.toSql(type),
       );
     }
-    map['wallet_id'] = Variable<String>(walletId);
+    if (!nullToAbsent || walletId != null) {
+      map['wallet_id'] = Variable<String>(walletId);
+    }
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<String>(categoryId);
     }
@@ -1682,7 +2250,9 @@ class TransactionEntity extends DataClass
       id: Value(id),
       amount: Value(amount),
       type: Value(type),
-      walletId: Value(walletId),
+      walletId: walletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(walletId),
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
@@ -1710,7 +2280,7 @@ class TransactionEntity extends DataClass
       id: serializer.fromJson<String>(json['id']),
       amount: serializer.fromJson<double>(json['amount']),
       type: serializer.fromJson<TransactionType>(json['type']),
-      walletId: serializer.fromJson<String>(json['walletId']),
+      walletId: serializer.fromJson<String?>(json['walletId']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
       toWalletId: serializer.fromJson<String?>(json['toWalletId']),
       date: serializer.fromJson<DateTime>(json['date']),
@@ -1729,7 +2299,7 @@ class TransactionEntity extends DataClass
       'id': serializer.toJson<String>(id),
       'amount': serializer.toJson<double>(amount),
       'type': serializer.toJson<TransactionType>(type),
-      'walletId': serializer.toJson<String>(walletId),
+      'walletId': serializer.toJson<String?>(walletId),
       'categoryId': serializer.toJson<String?>(categoryId),
       'toWalletId': serializer.toJson<String?>(toWalletId),
       'date': serializer.toJson<DateTime>(date),
@@ -1746,7 +2316,7 @@ class TransactionEntity extends DataClass
     String? id,
     double? amount,
     TransactionType? type,
-    String? walletId,
+    Value<String?> walletId = const Value.absent(),
     Value<String?> categoryId = const Value.absent(),
     Value<String?> toWalletId = const Value.absent(),
     DateTime? date,
@@ -1760,7 +2330,7 @@ class TransactionEntity extends DataClass
     id: id ?? this.id,
     amount: amount ?? this.amount,
     type: type ?? this.type,
-    walletId: walletId ?? this.walletId,
+    walletId: walletId.present ? walletId.value : this.walletId,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
     toWalletId: toWalletId.present ? toWalletId.value : this.toWalletId,
     date: date ?? this.date,
@@ -1858,7 +2428,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntity> {
   final Value<String> id;
   final Value<double> amount;
   final Value<TransactionType> type;
-  final Value<String> walletId;
+  final Value<String?> walletId;
   final Value<String?> categoryId;
   final Value<String?> toWalletId;
   final Value<DateTime> date;
@@ -1889,7 +2459,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntity> {
     required String id,
     required double amount,
     required TransactionType type,
-    required String walletId,
+    this.walletId = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.toWalletId = const Value.absent(),
     required DateTime date,
@@ -1903,7 +2473,6 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntity> {
   }) : id = Value(id),
        amount = Value(amount),
        type = Value(type),
-       walletId = Value(walletId),
        date = Value(date);
   static Insertable<TransactionEntity> custom({
     Expression<String>? id,
@@ -1943,7 +2512,7 @@ class TransactionsCompanion extends UpdateCompanion<TransactionEntity> {
     Value<String>? id,
     Value<double>? amount,
     Value<TransactionType>? type,
-    Value<String>? walletId,
+    Value<String?>? walletId,
     Value<String?>? categoryId,
     Value<String?>? toWalletId,
     Value<DateTime>? date,
@@ -2114,9 +2683,9 @@ class $SubscriptionsTable extends Subscriptions
   late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
     'wallet_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _categoryIdMeta = const VerificationMeta(
     'categoryId',
@@ -2327,8 +2896,6 @@ class $SubscriptionsTable extends Subscriptions
         _walletIdMeta,
         walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_walletIdMeta);
     }
     if (data.containsKey('category_id')) {
       context.handle(
@@ -2451,7 +3018,7 @@ class $SubscriptionsTable extends Subscriptions
       walletId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}wallet_id'],
-      )!,
+      ),
       categoryId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}category_id'],
@@ -2529,8 +3096,8 @@ class SubscriptionEntity extends DataClass
   /// Billing frequency
   final BillingFrequency frequency;
 
-  /// Associated wallet ID
-  final String walletId;
+  /// Associated wallet ID (nullable - wallets are for balance tracking only)
+  final String? walletId;
 
   /// Associated category ID
   final String categoryId;
@@ -2573,7 +3140,7 @@ class SubscriptionEntity extends DataClass
     required this.amount,
     required this.currency,
     required this.frequency,
-    required this.walletId,
+    this.walletId,
     required this.categoryId,
     required this.startDate,
     required this.nextBillingDate,
@@ -2599,7 +3166,9 @@ class SubscriptionEntity extends DataClass
         $SubscriptionsTable.$converterfrequency.toSql(frequency),
       );
     }
-    map['wallet_id'] = Variable<String>(walletId);
+    if (!nullToAbsent || walletId != null) {
+      map['wallet_id'] = Variable<String>(walletId);
+    }
     map['category_id'] = Variable<String>(categoryId);
     map['start_date'] = Variable<DateTime>(startDate);
     map['next_billing_date'] = Variable<DateTime>(nextBillingDate);
@@ -2626,7 +3195,9 @@ class SubscriptionEntity extends DataClass
       amount: Value(amount),
       currency: Value(currency),
       frequency: Value(frequency),
-      walletId: Value(walletId),
+      walletId: walletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(walletId),
       categoryId: Value(categoryId),
       startDate: Value(startDate),
       nextBillingDate: Value(nextBillingDate),
@@ -2655,7 +3226,7 @@ class SubscriptionEntity extends DataClass
       amount: serializer.fromJson<double>(json['amount']),
       currency: serializer.fromJson<String>(json['currency']),
       frequency: serializer.fromJson<BillingFrequency>(json['frequency']),
-      walletId: serializer.fromJson<String>(json['walletId']),
+      walletId: serializer.fromJson<String?>(json['walletId']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       nextBillingDate: serializer.fromJson<DateTime>(json['nextBillingDate']),
@@ -2681,7 +3252,7 @@ class SubscriptionEntity extends DataClass
       'amount': serializer.toJson<double>(amount),
       'currency': serializer.toJson<String>(currency),
       'frequency': serializer.toJson<BillingFrequency>(frequency),
-      'walletId': serializer.toJson<String>(walletId),
+      'walletId': serializer.toJson<String?>(walletId),
       'categoryId': serializer.toJson<String>(categoryId),
       'startDate': serializer.toJson<DateTime>(startDate),
       'nextBillingDate': serializer.toJson<DateTime>(nextBillingDate),
@@ -2703,7 +3274,7 @@ class SubscriptionEntity extends DataClass
     double? amount,
     String? currency,
     BillingFrequency? frequency,
-    String? walletId,
+    Value<String?> walletId = const Value.absent(),
     String? categoryId,
     DateTime? startDate,
     DateTime? nextBillingDate,
@@ -2722,7 +3293,7 @@ class SubscriptionEntity extends DataClass
     amount: amount ?? this.amount,
     currency: currency ?? this.currency,
     frequency: frequency ?? this.frequency,
-    walletId: walletId ?? this.walletId,
+    walletId: walletId.present ? walletId.value : this.walletId,
     categoryId: categoryId ?? this.categoryId,
     startDate: startDate ?? this.startDate,
     nextBillingDate: nextBillingDate ?? this.nextBillingDate,
@@ -2843,7 +3414,7 @@ class SubscriptionsCompanion extends UpdateCompanion<SubscriptionEntity> {
   final Value<double> amount;
   final Value<String> currency;
   final Value<BillingFrequency> frequency;
-  final Value<String> walletId;
+  final Value<String?> walletId;
   final Value<String> categoryId;
   final Value<DateTime> startDate;
   final Value<DateTime> nextBillingDate;
@@ -2884,7 +3455,7 @@ class SubscriptionsCompanion extends UpdateCompanion<SubscriptionEntity> {
     required double amount,
     this.currency = const Value.absent(),
     required BillingFrequency frequency,
-    required String walletId,
+    this.walletId = const Value.absent(),
     required String categoryId,
     required DateTime startDate,
     required DateTime nextBillingDate,
@@ -2902,7 +3473,6 @@ class SubscriptionsCompanion extends UpdateCompanion<SubscriptionEntity> {
        name = Value(name),
        amount = Value(amount),
        frequency = Value(frequency),
-       walletId = Value(walletId),
        categoryId = Value(categoryId),
        startDate = Value(startDate),
        nextBillingDate = Value(nextBillingDate);
@@ -2957,7 +3527,7 @@ class SubscriptionsCompanion extends UpdateCompanion<SubscriptionEntity> {
     Value<double>? amount,
     Value<String>? currency,
     Value<BillingFrequency>? frequency,
-    Value<String>? walletId,
+    Value<String?>? walletId,
     Value<String>? categoryId,
     Value<DateTime>? startDate,
     Value<DateTime>? nextBillingDate,
@@ -5643,6 +6213,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $WalletsTable wallets = $WalletsTable(this);
+  late final $WalletBalancesTable walletBalances = $WalletBalancesTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $SubscriptionsTable subscriptions = $SubscriptionsTable(this);
@@ -5652,6 +6223,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $SavingsContributionsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
   late final WalletsDao walletsDao = WalletsDao(this as AppDatabase);
+  late final WalletBalancesDao walletBalancesDao = WalletBalancesDao(
+    this as AppDatabase,
+  );
   late final CategoriesDao categoriesDao = CategoriesDao(this as AppDatabase);
   late final TransactionsDao transactionsDao = TransactionsDao(
     this as AppDatabase,
@@ -5672,6 +6246,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     wallets,
+    walletBalances,
     categories,
     transactions,
     subscriptions,
@@ -5983,6 +6558,273 @@ typedef $$WalletsTableProcessedTableManager =
       WalletEntity,
       PrefetchHooks Function()
     >;
+typedef $$WalletBalancesTableCreateCompanionBuilder =
+    WalletBalancesCompanion Function({
+      required String id,
+      required String walletId,
+      required int year,
+      required int month,
+      required double balance,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$WalletBalancesTableUpdateCompanionBuilder =
+    WalletBalancesCompanion Function({
+      Value<String> id,
+      Value<String> walletId,
+      Value<int> year,
+      Value<int> month,
+      Value<double> balance,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$WalletBalancesTableFilterComposer
+    extends Composer<_$AppDatabase, $WalletBalancesTable> {
+  $$WalletBalancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get year => $composableBuilder(
+    column: $table.year,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get month => $composableBuilder(
+    column: $table.month,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get balance => $composableBuilder(
+    column: $table.balance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WalletBalancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $WalletBalancesTable> {
+  $$WalletBalancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get year => $composableBuilder(
+    column: $table.year,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get month => $composableBuilder(
+    column: $table.month,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get balance => $composableBuilder(
+    column: $table.balance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WalletBalancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WalletBalancesTable> {
+  $$WalletBalancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get walletId =>
+      $composableBuilder(column: $table.walletId, builder: (column) => column);
+
+  GeneratedColumn<int> get year =>
+      $composableBuilder(column: $table.year, builder: (column) => column);
+
+  GeneratedColumn<int> get month =>
+      $composableBuilder(column: $table.month, builder: (column) => column);
+
+  GeneratedColumn<double> get balance =>
+      $composableBuilder(column: $table.balance, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$WalletBalancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WalletBalancesTable,
+          WalletBalanceEntity,
+          $$WalletBalancesTableFilterComposer,
+          $$WalletBalancesTableOrderingComposer,
+          $$WalletBalancesTableAnnotationComposer,
+          $$WalletBalancesTableCreateCompanionBuilder,
+          $$WalletBalancesTableUpdateCompanionBuilder,
+          (
+            WalletBalanceEntity,
+            BaseReferences<
+              _$AppDatabase,
+              $WalletBalancesTable,
+              WalletBalanceEntity
+            >,
+          ),
+          WalletBalanceEntity,
+          PrefetchHooks Function()
+        > {
+  $$WalletBalancesTableTableManager(
+    _$AppDatabase db,
+    $WalletBalancesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WalletBalancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WalletBalancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WalletBalancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> walletId = const Value.absent(),
+                Value<int> year = const Value.absent(),
+                Value<int> month = const Value.absent(),
+                Value<double> balance = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WalletBalancesCompanion(
+                id: id,
+                walletId: walletId,
+                year: year,
+                month: month,
+                balance: balance,
+                note: note,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String walletId,
+                required int year,
+                required int month,
+                required double balance,
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WalletBalancesCompanion.insert(
+                id: id,
+                walletId: walletId,
+                year: year,
+                month: month,
+                balance: balance,
+                note: note,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WalletBalancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WalletBalancesTable,
+      WalletBalanceEntity,
+      $$WalletBalancesTableFilterComposer,
+      $$WalletBalancesTableOrderingComposer,
+      $$WalletBalancesTableAnnotationComposer,
+      $$WalletBalancesTableCreateCompanionBuilder,
+      $$WalletBalancesTableUpdateCompanionBuilder,
+      (
+        WalletBalanceEntity,
+        BaseReferences<
+          _$AppDatabase,
+          $WalletBalancesTable,
+          WalletBalanceEntity
+        >,
+      ),
+      WalletBalanceEntity,
+      PrefetchHooks Function()
+    >;
 typedef $$CategoriesTableCreateCompanionBuilder =
     CategoriesCompanion Function({
       required String id,
@@ -5992,6 +6834,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       Value<String> colorHex,
       Value<String?> parentId,
       Value<bool> isDefault,
+      Value<bool> isEnabled,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -6006,6 +6849,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<String> colorHex,
       Value<String?> parentId,
       Value<bool> isDefault,
+      Value<bool> isEnabled,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -6054,6 +6898,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<bool> get isDefault => $composableBuilder(
     column: $table.isDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6117,6 +6966,11 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -6162,6 +7016,9 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<bool> get isDefault =>
       $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -6211,6 +7068,7 @@ class $$CategoriesTableTableManager
                 Value<String> colorHex = const Value.absent(),
                 Value<String?> parentId = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -6223,6 +7081,7 @@ class $$CategoriesTableTableManager
                 colorHex: colorHex,
                 parentId: parentId,
                 isDefault: isDefault,
+                isEnabled: isEnabled,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -6237,6 +7096,7 @@ class $$CategoriesTableTableManager
                 Value<String> colorHex = const Value.absent(),
                 Value<String?> parentId = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -6249,6 +7109,7 @@ class $$CategoriesTableTableManager
                 colorHex: colorHex,
                 parentId: parentId,
                 isDefault: isDefault,
+                isEnabled: isEnabled,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -6284,7 +7145,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required String id,
       required double amount,
       required TransactionType type,
-      required String walletId,
+      Value<String?> walletId,
       Value<String?> categoryId,
       Value<String?> toWalletId,
       required DateTime date,
@@ -6301,7 +7162,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<double> amount,
       Value<TransactionType> type,
-      Value<String> walletId,
+      Value<String?> walletId,
       Value<String?> categoryId,
       Value<String?> toWalletId,
       Value<DateTime> date,
@@ -6560,7 +7421,7 @@ class $$TransactionsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<double> amount = const Value.absent(),
                 Value<TransactionType> type = const Value.absent(),
-                Value<String> walletId = const Value.absent(),
+                Value<String?> walletId = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<String?> toWalletId = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
@@ -6592,7 +7453,7 @@ class $$TransactionsTableTableManager
                 required String id,
                 required double amount,
                 required TransactionType type,
-                required String walletId,
+                Value<String?> walletId = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<String?> toWalletId = const Value.absent(),
                 required DateTime date,
@@ -6651,7 +7512,7 @@ typedef $$SubscriptionsTableCreateCompanionBuilder =
       required double amount,
       Value<String> currency,
       required BillingFrequency frequency,
-      required String walletId,
+      Value<String?> walletId,
       required String categoryId,
       required DateTime startDate,
       required DateTime nextBillingDate,
@@ -6673,7 +7534,7 @@ typedef $$SubscriptionsTableUpdateCompanionBuilder =
       Value<double> amount,
       Value<String> currency,
       Value<BillingFrequency> frequency,
-      Value<String> walletId,
+      Value<String?> walletId,
       Value<String> categoryId,
       Value<DateTime> startDate,
       Value<DateTime> nextBillingDate,
@@ -7002,7 +7863,7 @@ class $$SubscriptionsTableTableManager
                 Value<double> amount = const Value.absent(),
                 Value<String> currency = const Value.absent(),
                 Value<BillingFrequency> frequency = const Value.absent(),
-                Value<String> walletId = const Value.absent(),
+                Value<String?> walletId = const Value.absent(),
                 Value<String> categoryId = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime> nextBillingDate = const Value.absent(),
@@ -7044,7 +7905,7 @@ class $$SubscriptionsTableTableManager
                 required double amount,
                 Value<String> currency = const Value.absent(),
                 required BillingFrequency frequency,
-                required String walletId,
+                Value<String?> walletId = const Value.absent(),
                 required String categoryId,
                 required DateTime startDate,
                 required DateTime nextBillingDate,
@@ -8330,6 +9191,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$WalletsTableTableManager get wallets =>
       $$WalletsTableTableManager(_db, _db.wallets);
+  $$WalletBalancesTableTableManager get walletBalances =>
+      $$WalletBalancesTableTableManager(_db, _db.walletBalances);
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db, _db.categories);
   $$TransactionsTableTableManager get transactions =>

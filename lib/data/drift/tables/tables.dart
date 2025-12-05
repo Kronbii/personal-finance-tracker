@@ -2,6 +2,7 @@
 library;
 
 export 'wallets_table.dart';
+export 'wallet_balances_table.dart';
 export 'categories_table.dart';
 export 'transactions_table.dart';
 export 'subscriptions_table.dart';

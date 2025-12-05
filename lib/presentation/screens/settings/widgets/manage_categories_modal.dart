@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:drift/drift.dart' hide Column;
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
@@ -247,18 +248,20 @@ class _ManageCategoriesModalState
     final color = _parseHexColor(category.colorHex);
     final icon = _getIconData(category.iconName);
 
-    return Container(
+    return Opacity(
       key: ValueKey(category.id),
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
-          width: 1,
+      opacity: category.isEnabled ? 1.0 : 0.6,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurfaceElevated : AppColors.lightSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+            width: 1,
+          ),
         ),
-      ),
-      child: ListTile(
+        child: ListTile(
         leading: Container(
           width: 44,
           height: 44,
@@ -268,11 +271,33 @@ class _ManageCategoriesModalState
           ),
           child: Icon(icon, size: 22, color: color),
         ),
-        title: Text(
-          category.name,
-          style: AppTypography.titleMedium(
-            isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-          ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                category.name,
+                style: AppTypography.titleMedium(
+                  isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                ),
+              ),
+            ),
+            if (!category.isEnabled)
+              Container(
+                margin: const EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)
+                      .withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Disabled',
+                  style: AppTypography.caption(
+                    isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: category.isDefault
             ? Text(
@@ -287,6 +312,16 @@ class _ManageCategoriesModalState
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Enable/Disable toggle
+            Tooltip(
+              message: category.isEnabled ? 'Disable category' : 'Enable category',
+              child: Switch(
+                value: category.isEnabled,
+                onChanged: (value) => _toggleCategoryEnabled(category, value),
+                activeThumbColor: AppColors.income,
+              ),
+            ),
+            const SizedBox(width: 8),
             // Reorder handle
             Icon(
               LucideIcons.gripVertical,
@@ -306,24 +341,19 @@ class _ManageCategoriesModalState
               ),
               tooltip: 'Edit',
             ),
-            // Delete button (disabled for default categories)
+            // Delete button (now allowed for all categories)
             IconButton(
-              onPressed: category.isDefault
-                  ? null
-                  : () => _deleteCategory(category),
+              onPressed: () => _deleteCategory(category),
               icon: Icon(
                 LucideIcons.trash2,
                 size: 18,
-                color: category.isDefault
-                    ? (isDark
-                        ? AppColors.darkTextTertiary
-                        : AppColors.lightTextTertiary)
-                    : AppColors.accentRed,
+                color: AppColors.accentRed,
               ),
-              tooltip: category.isDefault ? 'Cannot delete default' : 'Delete',
+              tooltip: category.isDefault ? 'Delete default category' : 'Delete',
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -488,6 +518,49 @@ class _ManageCategoriesModalState
     }
   }
 
+  Future<void> _toggleCategoryEnabled(CategoryEntity category, bool enabled) async {
+    try {
+      final categoriesDao = ref.read(categoriesDaoProvider);
+      await categoriesDao.updateCategoryById(
+        category.id,
+        CategoriesCompanion(isEnabled: Value(enabled)),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(LucideIcons.check, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Text(
+                  enabled
+                      ? 'Category enabled'
+                      : 'Category disabled',
+                  style: AppTypography.bodyMedium(Colors.white),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.income,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating category: $e'),
+            backgroundColor: AppColors.accentRed,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _deleteCategory(CategoryEntity category) async {
     // Check if category is used in transactions
     final transactionsDao = ref.read(transactionsDaoProvider);
@@ -515,15 +588,18 @@ class _ManageCategoriesModalState
       return;
     }
 
-    // Confirm deletion
+    // Confirm deletion (with warning for default categories)
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Category?'),
+        title: Text(category.isDefault ? 'Delete Default Category?' : 'Delete Category?'),
         content: Text(
-          'Are you sure you want to delete "${category.name}"? '
-          'This action cannot be undone.',
+          category.isDefault
+              ? 'Are you sure you want to delete the default category "${category.name}"? '
+                  'This action cannot be undone, and the category will not be automatically recreated.'
+              : 'Are you sure you want to delete "${category.name}"? '
+                  'This action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -600,6 +676,20 @@ class _ManageCategoriesModalState
       'book': LucideIcons.book,
       'wallet': LucideIcons.wallet,
       'credit-card': LucideIcons.creditCard,
+      'zap': LucideIcons.zap,
+      'droplet': LucideIcons.droplet,
+      'wifi': LucideIcons.wifi,
+      'phone': LucideIcons.phone,
+      'shirt': LucideIcons.shirt,
+      'baby': LucideIcons.baby,
+      'dog': LucideIcons.dog,
+      'fuel': LucideIcons.fuel,
+      'lightbulb': LucideIcons.lightbulb,
+      'battery': LucideIcons.battery,
+      'battery-charging': LucideIcons.batteryCharging,
+      'plug': LucideIcons.plug,
+      'plug-zap': LucideIcons.plugZap,
+      'power': LucideIcons.power,
       'circle': LucideIcons.circle,
     };
     return iconMap[iconName] ?? LucideIcons.circle;

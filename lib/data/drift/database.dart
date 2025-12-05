@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 
 import 'tables/tables.dart';
 import 'daos/wallets_dao.dart';
+import 'daos/wallet_balances_dao.dart';
 import 'daos/categories_dao.dart';
 import 'daos/transactions_dao.dart';
 import 'daos/subscriptions_dao.dart';
@@ -21,6 +22,7 @@ part 'database.g.dart';
 @DriftDatabase(
   tables: [
     Wallets,
+    WalletBalances,
     Categories,
     Transactions,
     Subscriptions,
@@ -31,6 +33,7 @@ part 'database.g.dart';
   ],
   daos: [
     WalletsDao,
+    WalletBalancesDao,
     CategoriesDao,
     TransactionsDao,
     SubscriptionsDao,
@@ -47,7 +50,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -57,7 +60,28 @@ class AppDatabase extends _$AppDatabase {
           await _seedDefaultCategories();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // Handle future migrations here
+          if (from < 2) {
+            // Add isEnabled column to categories table with default value
+            await customStatement('ALTER TABLE categories ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1');
+          }
+          if (from < 3) {
+            // Make walletId nullable - wallets are now for balance tracking only
+            await customStatement('ALTER TABLE transactions ADD COLUMN wallet_id_new TEXT');
+            await customStatement('UPDATE transactions SET wallet_id_new = wallet_id');
+            await customStatement('ALTER TABLE transactions DROP COLUMN wallet_id');
+            await customStatement('ALTER TABLE transactions RENAME COLUMN wallet_id_new TO wallet_id');
+          }
+          if (from < 4) {
+            // Create wallet_balances table for monthly balance tracking
+            await m.createTable(walletBalances);
+          }
+          if (from < 5) {
+            // Make walletId nullable in subscriptions - wallets are for balance tracking only
+            await customStatement('ALTER TABLE subscriptions ADD COLUMN wallet_id_new TEXT');
+            await customStatement('UPDATE subscriptions SET wallet_id_new = wallet_id');
+            await customStatement('ALTER TABLE subscriptions DROP COLUMN wallet_id');
+            await customStatement('ALTER TABLE subscriptions RENAME COLUMN wallet_id_new TO wallet_id');
+          }
         },
       );
 
@@ -96,7 +120,7 @@ class AppDatabase extends _$AppDatabase {
         id: 'cat_bills',
         name: 'Bills & Utilities',
         type: CategoryType.expense,
-        iconName: const Value('file-text'),
+        iconName: const Value('zap'),
         colorHex: const Value('#64D2FF'),
         isDefault: const Value(true),
         sortOrder: const Value(3),
@@ -105,7 +129,7 @@ class AppDatabase extends _$AppDatabase {
         id: 'cat_entertainment',
         name: 'Entertainment',
         type: CategoryType.expense,
-        iconName: const Value('gamepad-2'),
+        iconName: const Value('film'),
         colorHex: const Value('#BF5AF2'),
         isDefault: const Value(true),
         sortOrder: const Value(4),
@@ -123,7 +147,7 @@ class AppDatabase extends _$AppDatabase {
         id: 'cat_education',
         name: 'Education',
         type: CategoryType.expense,
-        iconName: const Value('graduation-cap'),
+        iconName: const Value('book'),
         colorHex: const Value('#5E5CE6'),
         isDefault: const Value(true),
         sortOrder: const Value(6),

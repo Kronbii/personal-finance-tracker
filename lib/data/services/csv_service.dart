@@ -317,7 +317,7 @@ class CsvService {
             date: date,
             type: type,
             amount: amount,
-            walletId: walletId,
+            walletId: Value(walletId),
             categoryId: Value(categoryId),
             toWalletId: Value(toWalletId),
             note: Value(noteStr.isNotEmpty ? noteStr : null),

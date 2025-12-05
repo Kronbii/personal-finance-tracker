@@ -11,13 +11,13 @@ part 'transactions_dao.g.dart';
 class TransactionWithDetails {
   final TransactionEntity transaction;
   final CategoryEntity? category;
-  final WalletEntity wallet;
+  final WalletEntity? wallet;
   final WalletEntity? toWallet;
 
   TransactionWithDetails({
     required this.transaction,
     this.category,
-    required this.wallet,
+    this.wallet,
     this.toWallet,
   });
 }
@@ -263,58 +263,20 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Calculate wallet balance from transactions
+  /// Get wallet balance (from latest monthly balance entry or initial balance)
   Future<double> calculateWalletBalance(String walletId) async {
-    // Get initial balance
+    // Get the latest monthly balance entry for this wallet
+    final walletBalancesDao = db.walletBalancesDao;
+    final latestBalance = await walletBalancesDao.getLatestBalance(walletId);
+    
+    if (latestBalance != null) {
+      return latestBalance.balance;
+    }
+    
+    // Fallback to initial balance if no monthly entries exist
     final wallet = await (select(wallets)..where((w) => w.id.equals(walletId)))
         .getSingleOrNull();
-    double balance = wallet?.initialBalance ?? 0.0;
-
-    // Add income
-    final incomeSum = transactions.amount.sum();
-    final incomeQuery = selectOnly(transactions)
-      ..addColumns([incomeSum])
-      ..where(
-        transactions.walletId.equals(walletId) &
-            transactions.type.equals(TransactionType.income.name),
-      );
-    final incomeResult = await incomeQuery.getSingle();
-    balance += incomeResult.read(incomeSum) ?? 0.0;
-
-    // Subtract expenses
-    final expenseSum = transactions.amount.sum();
-    final expenseQuery = selectOnly(transactions)
-      ..addColumns([expenseSum])
-      ..where(
-        transactions.walletId.equals(walletId) &
-            transactions.type.equals(TransactionType.expense.name),
-      );
-    final expenseResult = await expenseQuery.getSingle();
-    balance -= expenseResult.read(expenseSum) ?? 0.0;
-
-    // Add incoming transfers
-    final transferInSum = transactions.amount.sum();
-    final transferInQuery = selectOnly(transactions)
-      ..addColumns([transferInSum])
-      ..where(
-        transactions.toWalletId.equals(walletId) &
-            transactions.type.equals(TransactionType.transfer.name),
-      );
-    final transferInResult = await transferInQuery.getSingle();
-    balance += transferInResult.read(transferInSum) ?? 0.0;
-
-    // Subtract outgoing transfers
-    final transferOutSum = transactions.amount.sum();
-    final transferOutQuery = selectOnly(transactions)
-      ..addColumns([transferOutSum])
-      ..where(
-        transactions.walletId.equals(walletId) &
-            transactions.type.equals(TransactionType.transfer.name),
-      );
-    final transferOutResult = await transferOutQuery.getSingle();
-    balance -= transferOutResult.read(transferOutSum) ?? 0.0;
-
-    return balance;
+    return wallet?.initialBalance ?? 0.0;
   }
 
   /// Get all-time net savings (total income - total expenses)

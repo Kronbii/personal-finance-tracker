@@ -8,6 +8,8 @@ import '../../presentation/screens/insights/insights_screen.dart';
 import '../../presentation/screens/monthly_insights/monthly_insights_screen.dart';
 import '../../presentation/screens/bulk_entry/bulk_entry_screen.dart';
 import '../../presentation/screens/settings/settings_screen.dart';
+import '../../presentation/screens/subscriptions/subscriptions_screen.dart';
+import '../../presentation/screens/debts/debts_screen.dart';
 import '../shell/app_shell.dart';
 
 /// Route names for type-safe navigation
@@ -20,6 +22,8 @@ class AppRoutes {
   static const String monthlyInsights = '/monthly-insights';
   static const String bulkEntry = '/bulk-entry';
   static const String settings = '/settings';
+  static const String subscriptions = '/subscriptions';
+  static const String debts = '/debts';
 }
 
 /// Provider for GoRouter instance
@@ -81,6 +85,24 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => CustomTransitionPage(
               key: state.pageKey,
               child: const SettingsScreen(),
+              transitionsBuilder: _fadeTransition,
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.subscriptions,
+            name: 'subscriptions',
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const SubscriptionsScreen(),
+              transitionsBuilder: _fadeTransition,
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.debts,
+            name: 'debts',
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const DebtsScreen(),
               transitionsBuilder: _fadeTransition,
             ),
           ),

@@ -51,6 +51,22 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  /// Get enabled categories by type (for dropdowns/selectors)
+  Future<List<CategoryEntity>> getEnabledCategoriesByType(CategoryType type) {
+    return (select(categories)
+          ..where((c) => c.type.equals(type.name) & c.isEnabled.equals(true))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
+  }
+
+  /// Watch enabled categories by type (for dropdowns/selectors)
+  Stream<List<CategoryEntity>> watchEnabledCategoriesByType(CategoryType type) {
+    return (select(categories)
+          ..where((c) => c.type.equals(type.name) & c.isEnabled.equals(true))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .watch();
+  }
+
   /// Get expense categories
   Future<List<CategoryEntity>> getExpenseCategories() =>
       getCategoriesByType(CategoryType.expense);
@@ -66,6 +82,22 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
   /// Watch income categories
   Stream<List<CategoryEntity>> watchIncomeCategories() =>
       watchCategoriesByType(CategoryType.income);
+
+  /// Get enabled expense categories (for dropdowns/selectors)
+  Future<List<CategoryEntity>> getEnabledExpenseCategories() =>
+      getEnabledCategoriesByType(CategoryType.expense);
+
+  /// Get enabled income categories (for dropdowns/selectors)
+  Future<List<CategoryEntity>> getEnabledIncomeCategories() =>
+      getEnabledCategoriesByType(CategoryType.income);
+
+  /// Watch enabled expense categories (for dropdowns/selectors)
+  Stream<List<CategoryEntity>> watchEnabledExpenseCategories() =>
+      watchEnabledCategoriesByType(CategoryType.expense);
+
+  /// Watch enabled income categories (for dropdowns/selectors)
+  Stream<List<CategoryEntity>> watchEnabledIncomeCategories() =>
+      watchEnabledCategoriesByType(CategoryType.income);
 
   /// Get category by ID
   Future<CategoryEntity?> getCategoryById(String id) {

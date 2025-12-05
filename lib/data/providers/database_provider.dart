@@ -14,6 +14,10 @@ final walletsDaoProvider = Provider((ref) {
   return ref.watch(databaseProvider).walletsDao;
 });
 
+final walletBalancesDaoProvider = Provider((ref) {
+  return ref.watch(databaseProvider).walletBalancesDao;
+});
+
 /// Provider for CategoriesDao
 final categoriesDaoProvider = Provider((ref) {
   return ref.watch(databaseProvider).categoriesDao;

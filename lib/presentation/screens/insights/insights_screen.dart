@@ -8,8 +8,6 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
 import '../../../data/drift/database.dart';
-import '../../../data/drift/tables/debts_table.dart';
-import '../../../data/drift/tables/subscriptions_table.dart';
 import '../../../data/services/currency_formatter.dart';
 import '../../../data/providers/currency_provider.dart';
 import '../../widgets/apple_dropdown.dart';
@@ -18,11 +16,9 @@ import '../../widgets/line_chart_widget.dart';
 import '../../widgets/stat_card.dart';
 import '../dashboard/providers/dashboard_providers.dart';
 import 'providers/insights_providers.dart';
-import 'widgets/add_subscription_modal.dart';
-import 'widgets/add_debt_modal.dart';
 
 /// Insights screen - Analytics and visualizations
-/// Features: Tabbed view (Spending, Income, Savings, Subscriptions, Debts)
+/// Features: Tabbed view (Spending, Income, Savings)
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
 
@@ -132,8 +128,6 @@ class InsightsScreen extends ConsumerWidget {
       (InsightsTab.spending, 'Spending', LucideIcons.trendingDown),
       (InsightsTab.income, 'Income', LucideIcons.trendingUp),
       (InsightsTab.savings, 'Savings', LucideIcons.piggyBank),
-      (InsightsTab.subscriptions, 'Subscriptions', LucideIcons.repeat),
-      (InsightsTab.debts, 'Debts', LucideIcons.banknote),
     ];
 
     return Container(
@@ -204,9 +198,9 @@ class InsightsScreen extends ConsumerWidget {
       case InsightsTab.savings:
         return _buildSavingsTab(ref, isDark);
       case InsightsTab.subscriptions:
-        return _buildSubscriptionsTab(ref, isDark);
       case InsightsTab.debts:
-        return _buildDebtsTab(ref, isDark);
+        // These tabs have been moved to separate screens
+        return const SizedBox.shrink();
     }
   }
 
@@ -565,332 +559,6 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubscriptionsTab(WidgetRef ref, bool isDark) {
-    final subscriptions = ref.watch(activeSubscriptionsProvider);
-    final totalMonthlyCost = ref.watch(totalMonthlySubscriptionCostProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Total cost card
-        totalMonthlyCost.when(
-          data: (cost) => StatCard(
-            title: 'Monthly Subscriptions',
-            value: _formatCurrency(cost, ref),
-            subtitle: 'Total recurring costs',
-            icon: LucideIcons.repeat,
-            iconColor: AppColors.accentPurple,
-            isDark: isDark,
-          ),
-          loading: () => _buildLoadingCard(isDark, height: 120),
-          error: (_, __) => _buildErrorCard(isDark, 'Error'),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Subscription list
-        subscriptions.when(
-          data: (subs) {
-            if (subs.isEmpty) {
-              return _buildEmptyState(
-                isDark,
-                'No subscriptions',
-                'Add subscriptions to track recurring payments',
-                LucideIcons.creditCard,
-              );
-            }
-
-            return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color:
-                      isDark ? AppColors.darkDivider : AppColors.lightDivider,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Active Subscriptions',
-                    style: AppTypography.titleLarge(
-                      isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...subs.map((sub) => _buildSubscriptionItem(sub, ref, isDark)),
-                ],
-              ),
-            );
-          },
-          loading: () => _buildLoadingCard(isDark),
-          error: (_, __) => _buildErrorCard(isDark, 'Error'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSubscriptionItem(SubscriptionEntity sub, WidgetRef ref, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: _parseHexColor(sub.colorHex).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              LucideIcons.repeat,
-              size: 20,
-              color: _parseHexColor(sub.colorHex),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sub.name,
-                  style: AppTypography.titleMedium(
-                    isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
-                  ),
-                ),
-                Text(
-                  'Next: ${DateFormat('MMM d').format(sub.nextBillingDate)}',
-                  style: AppTypography.caption(
-                    isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _formatCurrency(sub.amount, ref),
-                style: AppTypography.moneySmall(
-                  isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
-                ),
-              ),
-              Text(
-                _getFrequencyLabel(sub.frequency),
-                style: AppTypography.caption(
-                  isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.lightTextSecondary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDebtsTab(WidgetRef ref, bool isDark) {
-    final debts = ref.watch(activeDebtsProvider);
-    final totalOwed = ref.watch(totalOwedProvider);
-    final totalLent = ref.watch(totalLentProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Summary cards
-        Row(
-          children: [
-            Expanded(
-              child: totalOwed.when(
-                data: (amount) => CompactStatCard(
-                  title: 'You Owe',
-                  value: _formatCurrency(amount, ref),
-                  icon: LucideIcons.arrowUpRight,
-                  color: AppColors.expense,
-                  isDark: isDark,
-                ),
-                loading: () => _buildLoadingCard(isDark, height: 80),
-                error: (_, __) => _buildErrorCard(isDark, 'Error'),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: totalLent.when(
-                data: (amount) => CompactStatCard(
-                  title: 'Owed to You',
-                  value: _formatCurrency(amount, ref),
-                  icon: LucideIcons.arrowDownLeft,
-                  color: AppColors.income,
-                  isDark: isDark,
-                ),
-                loading: () => _buildLoadingCard(isDark, height: 80),
-                error: (_, __) => _buildErrorCard(isDark, 'Error'),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 24),
-
-        // Debts list
-        debts.when(
-          data: (debtList) {
-            if (debtList.isEmpty) {
-              return _buildEmptyState(
-                isDark,
-                'No active debts',
-                'Track money you owe or are owed',
-                LucideIcons.banknote,
-              );
-            }
-
-            return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color:
-                      isDark ? AppColors.darkDivider : AppColors.lightDivider,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Active Debts',
-                    style: AppTypography.titleLarge(
-                      isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...debtList.map((debt) => _buildDebtItem(debt, ref, isDark)),
-                ],
-              ),
-            );
-          },
-          loading: () => _buildLoadingCard(isDark),
-          error: (_, __) => _buildErrorCard(isDark, 'Error loading debts'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDebtItem(DebtEntity debt, WidgetRef ref, bool isDark) {
-    final isOwed = debt.type == DebtType.owed;
-    final progress = 1 - (debt.remainingAmount / debt.originalAmount);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: (isOwed ? AppColors.expense : AppColors.income)
-                      .withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  isOwed ? LucideIcons.arrowUpRight : LucideIcons.arrowDownLeft,
-                  size: 20,
-                  color: isOwed ? AppColors.expense : AppColors.income,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      debt.personName,
-                      style: AppTypography.titleMedium(
-                        isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.lightTextPrimary,
-                      ),
-                    ),
-                    Text(
-                      isOwed ? 'You owe' : 'Owes you',
-                      style: AppTypography.caption(
-                        isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                _formatCurrency(debt.remainingAmount, ref),
-                style: AppTypography.moneySmall(
-                  isOwed ? AppColors.expense : AppColors.income,
-                ),
-              ),
-            ],
-          ),
-          if (debt.dueDate != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(
-                  LucideIcons.calendar,
-                  size: 14,
-                  color: isDark
-                      ? AppColors.darkTextTertiary
-                      : AppColors.lightTextTertiary,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Due: ${DateFormat('MMM d, yyyy').format(debt.dueDate!)}',
-                  style: AppTypography.caption(
-                    isDark
-                        ? AppColors.darkTextTertiary
-                        : AppColors.lightTextTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress.clamp(0.0, 1.0),
-              backgroundColor: isDark
-                  ? AppColors.darkSurfaceElevated
-                  : AppColors.lightSurfaceHighlight,
-              valueColor: AlwaysStoppedAnimation(
-                isOwed ? AppColors.expense : AppColors.income,
-              ),
-              minHeight: 4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildLoadingCard(bool isDark, {double height = 200}) {
     return Container(
@@ -985,78 +653,8 @@ class InsightsScreen extends ConsumerWidget {
     WidgetRef ref,
     InsightsTab selectedTab,
   ) {
-    if (selectedTab == InsightsTab.subscriptions) {
-      return FloatingActionButton.extended(
-        onPressed: () => _showAddSubscription(context, ref),
-        backgroundColor: AppColors.accentPurple,
-        icon: const Icon(LucideIcons.plus, color: Colors.white),
-        label: Text(
-          'Add Subscription',
-          style: AppTypography.labelMedium(Colors.white),
-        ),
-      );
-    } else if (selectedTab == InsightsTab.debts) {
-      return FloatingActionButton.extended(
-        onPressed: () => _showAddDebt(context, ref),
-        backgroundColor: AppColors.accentBlue,
-        icon: const Icon(LucideIcons.plus, color: Colors.white),
-        label: Text(
-          'Add Debt',
-          style: AppTypography.labelMedium(Colors.white),
-        ),
-      );
-    }
+    // No FAB for insights tabs
     return null;
-  }
-
-  Future<void> _showAddSubscription(BuildContext context, WidgetRef ref) async {
-    final result = await AddSubscriptionModal.show(context);
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Subscription added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _showAddDebt(BuildContext context, WidgetRef ref) async {
-    final result = await AddDebtModal.show(context);
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Debt added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
   }
 
   String _formatCurrency(double amount, WidgetRef ref) {
@@ -1074,22 +672,6 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  String _getFrequencyLabel(BillingFrequency frequency) {
-    switch (frequency) {
-      case BillingFrequency.daily:
-        return '/day';
-      case BillingFrequency.weekly:
-        return '/week';
-      case BillingFrequency.biweekly:
-        return '/2 weeks';
-      case BillingFrequency.monthly:
-        return '/month';
-      case BillingFrequency.quarterly:
-        return '/quarter';
-      case BillingFrequency.yearly:
-        return '/year';
-    }
-  }
 
   Color _parseHexColor(String hexColor) {
     final hex = hexColor.replaceAll('#', '');

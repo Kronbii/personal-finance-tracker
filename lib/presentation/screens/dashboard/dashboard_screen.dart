@@ -58,6 +58,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   // Monthly summary text
                   _buildMonthlySummary(isDark),
 
+                  const SizedBox(height: 24),
+
+                  // Wallet balances section
+                  _buildWalletBalancesSection(isDark),
+
                   const SizedBox(height: 32),
 
                   // Category breakdown and wallets row
@@ -607,5 +612,201 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return Color(int.parse('FF$hex', radix: 16));
     }
     return AppColors.accentBlue;
+  }
+
+  Widget _buildWalletBalancesSection(bool isDark) {
+    final wallets = ref.watch(walletsProvider);
+    final balances = ref.watch(walletBalancesProvider);
+
+    return wallets.when(
+      data: (walletList) => balances.when(
+        data: (balanceMap) {
+          final totalBalance = balanceMap.values.fold(0.0, (sum, val) => sum + val);
+          
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Current Wallet Balances',
+                  style: AppTypography.titleLarge(
+                    isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (walletList.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'No wallets found',
+                        style: AppTypography.bodyMedium(
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      ...walletList.map((wallet) {
+                        final balance = balanceMap[wallet.id] ?? wallet.initialBalance;
+                        final color = AppColors.getWalletGradient(wallet.gradientIndex)[0];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  LucideIcons.wallet,
+                                  size: 20,
+                                  color: color,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  wallet.name,
+                                  style: AppTypography.titleMedium(
+                                    isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                CurrencyFormatter.format(
+                                  balance,
+                                  currencyCode: wallet.currency,
+                                ),
+                                style: AppTypography.moneySmall(
+                                  isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      const Divider(height: 32),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Total',
+                              style: AppTypography.titleMedium(
+                                isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(
+                              totalBalance,
+                              currencyCode: walletList.isNotEmpty
+                                  ? walletList.first.currency
+                                  : 'USD',
+                            ),
+                            style: AppTypography.moneyLarge(
+                              AppColors.accentBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          );
+        },
+        loading: () => Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+              width: 1,
+            ),
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.accentRed.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(LucideIcons.alertCircle, color: AppColors.accentRed),
+              const SizedBox(width: 12),
+              Text(
+                'Error loading balances',
+                style: AppTypography.bodyMedium(AppColors.accentRed),
+              ),
+            ],
+          ),
+        ),
+      ),
+      loading: () => Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+            width: 1,
+          ),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppColors.accentRed.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(LucideIcons.alertCircle, color: AppColors.accentRed),
+            const SizedBox(width: 12),
+            Text(
+              'Error loading wallets',
+              style: AppTypography.bodyMedium(AppColors.accentRed),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

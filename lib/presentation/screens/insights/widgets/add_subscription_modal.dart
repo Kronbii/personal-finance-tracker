@@ -50,7 +50,6 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
   final _reminderDaysController = TextEditingController(text: '3');
   
   BillingFrequency _selectedFrequency = BillingFrequency.monthly;
-  String? _selectedWalletId;
   String? _selectedCategoryId;
   DateTime _startDate = DateTime.now();
   DateTime _nextBillingDate = DateTime.now().add(const Duration(days: 30));
@@ -69,7 +68,6 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
       _noteController.text = sub.note ?? '';
       _reminderDaysController.text = sub.reminderDays.toString();
       _selectedFrequency = sub.frequency;
-      _selectedWalletId = sub.walletId;
       _selectedCategoryId = sub.categoryId;
       _startDate = sub.startDate;
       _nextBillingDate = sub.nextBillingDate;
@@ -89,8 +87,7 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final wallets = ref.watch(walletsProvider);
-    final expenseCategories = ref.watch(expenseCategoriesProvider);
+    final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -131,16 +128,6 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
 
                     // Frequency selector
                     _buildFrequencySelector(isDark),
-                    const SizedBox(height: 20),
-
-                    // Wallet selector
-                    wallets.when(
-                      data: (walletList) =>
-                          _buildWalletSelector(isDark, walletList),
-                      loading: () => _buildLoadingField(isDark),
-                      error: (_, __) =>
-                          _buildErrorField(isDark, 'Unable to load wallets'),
-                    ),
                     const SizedBox(height: 20),
 
                     // Category selector
@@ -396,41 +383,6 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
     );
   }
 
-  Widget _buildWalletSelector(bool isDark, List<WalletEntity> wallets) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Wallet',
-          style: AppTypography.labelMedium(
-            isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: AppleDropdown<String?>(
-            value: _selectedWalletId,
-            isDark: isDark,
-            leadingIcon: LucideIcons.wallet,
-            hint: 'Select wallet',
-            items: [
-              const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
-              ...wallets.map((wallet) => AppleDropdownItem<String?>(
-                value: wallet.id,
-                label: wallet.name,
-              )),
-            ],
-            onChanged: (value) {
-              setState(() => _selectedWalletId = value);
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildCategorySelector(
       bool isDark, List<CategoryEntity> categories) {
@@ -884,11 +836,6 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
       return;
     }
 
-    if (_selectedWalletId == null) {
-      _showError('Please select a wallet');
-      return;
-    }
-
     if (_selectedCategoryId == null) {
       _showError('Please select a category');
       return;
@@ -910,7 +857,7 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
             name: Value(_nameController.text.trim()),
             amount: Value(amount),
             frequency: Value(_selectedFrequency),
-            walletId: Value(_selectedWalletId!),
+            walletId: const Value<String?>(null),
             categoryId: Value(_selectedCategoryId!),
             startDate: Value(_startDate),
             nextBillingDate: Value(_nextBillingDate),
@@ -930,7 +877,7 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
             name: _nameController.text.trim(),
             amount: amount,
             frequency: _selectedFrequency,
-            walletId: _selectedWalletId!,
+            walletId: Value<String?>(null),
             categoryId: _selectedCategoryId!,
             startDate: _startDate,
             nextBillingDate: _nextBillingDate,

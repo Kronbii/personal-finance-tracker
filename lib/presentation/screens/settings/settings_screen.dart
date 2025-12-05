@@ -18,6 +18,7 @@ import 'widgets/add_wallet_modal.dart';
 import 'widgets/csv_import_preview_modal.dart';
 import 'widgets/currency_picker.dart';
 import 'widgets/manage_categories_modal.dart';
+import 'widgets/manage_wallet_balances_modal.dart';
 
 /// Settings screen - App configuration and data management
 /// Features: Theme toggle, currency, wallets/categories management, import/export, sync
@@ -71,6 +72,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _buildSectionHeader(isDark, 'Wallets'),
                   const SizedBox(height: 12),
                   _buildWalletsSection(isDark, wallets),
+                  const SizedBox(height: 32),
+
+                  // Wallet Balances section
+                  _buildSectionHeader(isDark, 'Wallet Balances'),
+                  const SizedBox(height: 12),
+                  _buildWalletBalancesSection(isDark),
                   const SizedBox(height: 32),
 
                   // Categories section
@@ -259,6 +266,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               style: AppTypography.bodyMedium(AppColors.accentRed),
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWalletBalancesSection(bool isDark) {
+    return _buildSettingsCard(
+      isDark: isDark,
+      children: [
+        _buildSettingsTile(
+          isDark: isDark,
+          icon: LucideIcons.wallet,
+          iconColor: AppColors.accentBlue,
+          title: 'Manage Wallet Balances',
+          subtitle: 'Track monthly balances for each wallet',
+          trailing: const Icon(LucideIcons.chevronRight, size: 20),
+          onTap: () => _manageWalletBalances(),
         ),
       ],
     );
@@ -837,6 +861,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const SizedBox(width: 12),
               Text(
                 'Wallet added successfully',
+                style: AppTypography.bodyMedium(Colors.white),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.income,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _manageWalletBalances() async {
+    final result = await ManageWalletBalancesModal.show(context);
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(LucideIcons.check, color: Colors.white, size: 18),
+              const SizedBox(width: 12),
+              Text(
+                'Wallet balances updated',
                 style: AppTypography.bodyMedium(Colors.white),
               ),
             ],

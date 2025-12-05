@@ -32,10 +32,8 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
   @override
   void initState() {
     super.initState();
-    // Start with 3 empty rows
-    for (int i = 0; i < 3; i++) {
-      _addRow();
-    }
+    // Start with 1 empty row
+    _addRow();
   }
 
   void _addRow() {
@@ -65,7 +63,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
       for (final row in _rows) {
         row.amountController.clear();
         row.noteController.clear();
-        row.selectedWalletId = null;
         row.selectedCategoryId = null;
         row.selectedType = TransactionType.expense;
         row.dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -84,9 +81,8 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final wallets = ref.watch(walletsProvider);
-    final expenseCategories = ref.watch(expenseCategoriesProvider);
-    final incomeCategories = ref.watch(incomeCategoriesProvider);
+    final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
+    final incomeCategories = ref.watch(enabledIncomeCategoriesProvider);
 
     return Scaffold(
       backgroundColor:
@@ -98,23 +94,18 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
 
           // Grid
           Expanded(
-            child: wallets.when(
-              data: (walletList) => expenseCategories.when(
-                data: (expenseCats) => incomeCategories.when(
-                  data: (incomeCats) => _buildGrid(
-                    isDark,
-                    walletList,
-                    expenseCats,
-                    incomeCats,
-                  ),
-                  loading: () => _buildLoading(),
-                  error: (_, __) => _buildError(isDark, 'Error loading categories'),
+            child: expenseCategories.when(
+              data: (expenseCats) => incomeCategories.when(
+                data: (incomeCats) => _buildGrid(
+                  isDark,
+                  expenseCats,
+                  incomeCats,
                 ),
                 loading: () => _buildLoading(),
                 error: (_, __) => _buildError(isDark, 'Error loading categories'),
               ),
               loading: () => _buildLoading(),
-              error: (_, __) => _buildError(isDark, 'Error loading wallets'),
+              error: (_, __) => _buildError(isDark, 'Error loading categories'),
             ),
           ),
 
@@ -176,7 +167,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
 
   Widget _buildGrid(
     bool isDark,
-    List<WalletEntity> wallets,
     List<CategoryEntity> expenseCategories,
     List<CategoryEntity> incomeCategories,
   ) {
@@ -207,7 +197,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
                 return _buildDataRow(
                   isDark,
                   index,
-                  wallets,
                   expenseCategories,
                   incomeCategories,
                 );
@@ -238,7 +227,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
           Expanded(flex: 2, child: Text('Date', style: headerStyle)),
           Expanded(flex: 2, child: Text('Type', style: headerStyle)),
           Expanded(flex: 2, child: Text('Amount', style: headerStyle)),
-          Expanded(flex: 3, child: Text('Wallet', style: headerStyle)),
           Expanded(flex: 3, child: Text('Category', style: headerStyle)),
           Expanded(flex: 3, child: Text('Note', style: headerStyle)),
           const SizedBox(width: 48),
@@ -250,7 +238,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
   Widget _buildDataRow(
     bool isDark,
     int index,
-    List<WalletEntity> wallets,
     List<CategoryEntity> expenseCategories,
     List<CategoryEntity> incomeCategories,
   ) {
@@ -318,27 +305,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
                         : AppColors.lightTextTertiary,
                   ),
                 ),
-              ),
-            ),
-          ),
-
-          // Wallet dropdown
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: AppleDropdown<String?>(
-                value: row.selectedWalletId,
-                isDark: isDark,
-                hint: 'Wallet',
-                items: [
-                  const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
-                  ...wallets.map((w) => AppleDropdownItem<String?>(
-                    value: w.id,
-                    label: w.name,
-                  )),
-                ],
-                onChanged: (value) => setState(() => row.selectedWalletId = value),
               ),
             ),
           ),
@@ -537,7 +503,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
       final amount = double.tryParse(row.amountController.text);
       return amount != null &&
           amount > 0 &&
-          row.selectedWalletId != null &&
           row.selectedCategoryId != null;
     }).length;
 
@@ -625,7 +590,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
         final amount = double.tryParse(row.amountController.text);
         if (amount != null &&
             amount > 0 &&
-            row.selectedWalletId != null &&
             row.selectedCategoryId != null) {
           final date = DateTime.tryParse(row.dateController.text) ?? DateTime.now();
 
@@ -633,7 +597,7 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
             id: const Uuid().v4(),
             amount: amount,
             type: row.selectedType,
-            walletId: row.selectedWalletId!,
+            walletId: const Value(null),
             categoryId: Value(row.selectedCategoryId),
             date: date,
             note: Value(row.noteController.text.isEmpty
@@ -690,7 +654,6 @@ class BulkEntryRow {
   final TextEditingController dateController;
   final TextEditingController amountController;
   final TextEditingController noteController;
-  String? selectedWalletId;
   String? selectedCategoryId;
   TransactionType selectedType;
 
@@ -699,7 +662,6 @@ class BulkEntryRow {
     required this.dateController,
     required this.amountController,
     required this.noteController,
-    this.selectedWalletId,
     this.selectedCategoryId,
     this.selectedType = TransactionType.expense,
   });

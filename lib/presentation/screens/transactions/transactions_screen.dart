@@ -57,6 +57,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             child: _buildHeader(isDark),
           ),
 
+          // Month selector
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: _buildMonthSelector(isDark),
+            ),
+          ),
+
           // Filters and search
           SliverToBoxAdapter(
             child: Padding(
@@ -111,6 +119,109 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildMonthSelector(bool isDark) {
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    final monthNotifier = ref.read(selectedMonthProvider.notifier);
+
+    final monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            LucideIcons.calendar,
+            size: 20,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              selectedMonth != null
+                  ? '${monthNames[selectedMonth.month - 1]} ${selectedMonth.year}'
+                  : 'All Months',
+              style: AppTypography.titleMedium(
+                isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              LucideIcons.chevronLeft,
+              size: 20,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+            ),
+            onPressed: selectedMonth != null
+                ? () => monthNotifier.setPreviousMonth()
+                : null,
+            tooltip: 'Previous month',
+          ),
+          IconButton(
+            icon: Icon(
+              LucideIcons.chevronRight,
+              size: 20,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+            ),
+            onPressed: selectedMonth != null
+                ? () => monthNotifier.setNextMonth()
+                : null,
+            tooltip: 'Next month',
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: () => monthNotifier.setCurrentMonth(),
+            child: Text(
+              'Today',
+              style: AppTypography.labelMedium(AppColors.accentBlue),
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: Icon(
+              LucideIcons.x,
+              size: 18,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+            ),
+            onPressed: () => monthNotifier.setMonth(null),
+            tooltip: 'Show all months',
+          ),
+        ],
+      ),
+    ).animate(delay: 150.ms).fadeIn(duration: 400.ms);
   }
 
   Widget _buildSearchBar(bool isDark) {
@@ -268,7 +379,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   Widget _buildTransactionList(bool isDark) {
     final groupedTransactions = ref.watch(groupedTransactionsProvider);
     final categoryMap = ref.watch(categoryMapProvider);
-    final wallets = ref.watch(walletsProvider);
 
     return groupedTransactions.when(
       data: (grouped) {
@@ -313,45 +423,28 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       data: (categories) {
                         final category = categories[transaction.categoryId];
 
-                        return wallets.when(
-                          data: (walletList) {
-                            final wallet = walletList.firstWhere(
-                              (w) => w.id == transaction.walletId,
-                              orElse: () => walletList.first,
-                            );
-                            final toWallet = transaction.toWalletId != null
-                                ? walletList.firstWhere(
-                                    (w) => w.id == transaction.toWalletId,
-                                    orElse: () => walletList.first,
-                                  )
-                                : null;
-
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: txnIndex < transactions.length - 1
-                                    ? 8
-                                    : 24,
-                              ),
-                              child: TransactionItem(
-                                categoryName: category?.name ?? 'Unknown',
-                                categoryIcon: category?.iconName ?? 'circle',
-                                categoryColor:
-                                    category?.colorHex ?? '#0A84FF',
-                                walletName: wallet.name,
-                                toWalletName: toWallet?.name,
-                                amount: transaction.amount,
-                                type: transaction.type,
-                                date: transaction.date,
-                                note: transaction.note,
-                                isDark: isDark,
-                                animationDelay: (index * 50) + (txnIndex * 30),
-                                onTap: () =>
-                                    _showTransactionDetails(transaction),
-                              ),
-                            );
-                          },
-                          loading: () => const SizedBox.shrink(),
-                          error: (_, __) => const SizedBox.shrink(),
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: txnIndex < transactions.length - 1
+                                ? 8
+                                : 24,
+                          ),
+                          child: TransactionItem(
+                            categoryName: category?.name ?? 'Unknown',
+                            categoryIcon: category?.iconName ?? 'circle',
+                            categoryColor:
+                                category?.colorHex ?? '#0A84FF',
+                            walletName: null,
+                            toWalletName: null,
+                            amount: transaction.amount,
+                            type: transaction.type,
+                            date: transaction.date,
+                            note: transaction.note,
+                            isDark: isDark,
+                            animationDelay: (index * 50) + (txnIndex * 30),
+                            onTap: () =>
+                                _showTransactionDetails(transaction),
+                          ),
                         );
                       },
                       loading: () => const SizedBox.shrink(),

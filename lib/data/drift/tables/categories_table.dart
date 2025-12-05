@@ -27,6 +27,9 @@ class Categories extends Table {
   /// Whether this is a system default category
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
 
+  /// Whether this category is enabled (visible in dropdowns)
+  BoolColumn get isEnabled => boolean().withDefault(const Constant(true))();
+
   /// Display order for sorting
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 

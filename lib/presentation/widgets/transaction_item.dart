@@ -13,7 +13,7 @@ class TransactionItem extends StatelessWidget {
   final String categoryName;
   final String categoryIcon;
   final String categoryColor;
-  final String walletName;
+  final String? walletName;
   final String? toWalletName;
   final double amount;
   final TransactionType type;
@@ -28,7 +28,7 @@ class TransactionItem extends StatelessWidget {
     required this.categoryName,
     this.categoryIcon = 'circle',
     this.categoryColor = '#0A84FF',
-    required this.walletName,
+    this.walletName,
     this.toWalletName,
     required this.amount,
     required this.type,
@@ -91,29 +91,6 @@ class TransactionItem extends StatelessWidget {
                             ? AppColors.darkTextPrimary
                             : AppColors.lightTextPrimary,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.wallet,
-                          size: 12,
-                          color: isDark
-                              ? AppColors.darkTextTertiary
-                              : AppColors.lightTextTertiary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          type == TransactionType.transfer
-                              ? '$walletName → ${toWalletName ?? 'Unknown'}'
-                              : walletName,
-                          style: AppTypography.caption(
-                            isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.lightTextSecondary,
-                          ),
-                        ),
-                      ],
                     ),
                     if (note != null && note!.isNotEmpty) ...[
                       const SizedBox(height: 4),
@@ -234,6 +211,22 @@ class TransactionItem extends StatelessWidget {
       'circle': LucideIcons.circle,
       'repeat': LucideIcons.repeat,
       'arrow-right-left': LucideIcons.arrowRightLeft,
+      'book': LucideIcons.book,
+      'film': LucideIcons.film,
+      'zap': LucideIcons.zap,
+      'droplet': LucideIcons.droplet,
+      'wifi': LucideIcons.wifi,
+      'phone': LucideIcons.phone,
+      'shirt': LucideIcons.shirt,
+      'baby': LucideIcons.baby,
+      'dog': LucideIcons.dog,
+      'fuel': LucideIcons.fuel,
+      'lightbulb': LucideIcons.lightbulb,
+      'battery': LucideIcons.battery,
+      'battery-charging': LucideIcons.batteryCharging,
+      'plug': LucideIcons.plug,
+      'plug-zap': LucideIcons.plugZap,
+      'power': LucideIcons.power,
     };
     return iconMap[iconName] ?? LucideIcons.circle;
   }

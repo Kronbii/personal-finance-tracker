@@ -4,6 +4,7 @@ import '../../../../data/drift/database.dart';
 import '../../../../data/drift/daos/transactions_dao.dart';
 import '../../../../data/drift/tables/transactions_table.dart';
 import '../../../../data/providers/database_provider.dart';
+import '../../dashboard/providers/dashboard_providers.dart';
 
 /// Selected month for monthly insights
 final selectedMonthProvider =
@@ -197,17 +198,49 @@ final topMonthExpensesProvider =
     final category = tx.categoryId != null
         ? await categoriesDao.getCategoryById(tx.categoryId!)
         : null;
-    final wallet = await walletsDao.getWalletById(tx.walletId);
-    if (wallet != null) {
+    // Wallets are optional - only include if transaction has a wallet
+    if (tx.walletId != null) {
+      final wallet = await walletsDao.getWalletById(tx.walletId!);
+      if (wallet != null) {
+        results.add(TransactionWithDetails(
+          transaction: tx,
+          category: category,
+          wallet: wallet,
+        ));
+      }
+    } else {
+      // Include transaction even without wallet
       results.add(TransactionWithDetails(
         transaction: tx,
         category: category,
-        wallet: wallet,
+        wallet: null,
       ));
     }
   }
 
   return results;
+});
+
+/// Provider for wallet balances for a specific month
+final monthWalletBalancesProvider = FutureProvider.family<Map<String, double>, DateTime>((ref, month) async {
+  final wallets = await ref.watch(walletsProvider.future);
+  final walletBalancesDao = ref.watch(walletBalancesDaoProvider);
+  
+  final balances = <String, double>{};
+  for (final wallet in wallets) {
+    final balance = await walletBalancesDao.getBalanceForMonth(
+      wallet.id,
+      month.year,
+      month.month,
+    );
+    if (balance != null) {
+      balances[wallet.id] = balance.balance;
+    } else {
+      // Fallback to initial balance if no monthly entry exists
+      balances[wallet.id] = wallet.initialBalance;
+    }
+  }
+  return balances;
 });
 
 /// Provider for top incomes in selected month
@@ -234,12 +267,22 @@ final topMonthIncomesProvider =
     final category = tx.categoryId != null
         ? await categoriesDao.getCategoryById(tx.categoryId!)
         : null;
-    final wallet = await walletsDao.getWalletById(tx.walletId);
-    if (wallet != null) {
+    // Wallets are optional - only include if transaction has a wallet
+    if (tx.walletId != null) {
+      final wallet = await walletsDao.getWalletById(tx.walletId!);
+      if (wallet != null) {
+        results.add(TransactionWithDetails(
+          transaction: tx,
+          category: category,
+          wallet: wallet,
+        ));
+      }
+    } else {
+      // Include transaction even without wallet
       results.add(TransactionWithDetails(
         transaction: tx,
         category: category,
-        wallet: wallet,
+        wallet: null,
       ));
     }
   }

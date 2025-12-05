@@ -48,8 +48,6 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  String? _selectedWalletId;
-  String? _selectedToWalletId;
   String? _selectedCategoryId;
   bool _isLoading = false;
 
@@ -64,8 +62,6 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
       _amountController.text = txn.amount.toStringAsFixed(2);
       _noteController.text = txn.note ?? '';
       _selectedDate = txn.date;
-      _selectedWalletId = txn.walletId;
-      _selectedToWalletId = txn.toWalletId;
       _selectedCategoryId = txn.categoryId;
     } else {
       _selectedType = TransactionType.expense;
@@ -82,9 +78,8 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final wallets = ref.watch(walletsProvider);
-    final expenseCategories = ref.watch(expenseCategoriesProvider);
-    final incomeCategories = ref.watch(incomeCategoriesProvider);
+    final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
+    final incomeCategories = ref.watch(enabledIncomeCategoriesProvider);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -127,27 +122,6 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
                     _buildDatePicker(isDark),
                     const SizedBox(height: 20),
 
-                    // Wallet selector
-                    wallets.when(
-                      data: (walletList) =>
-                          _buildWalletSelector(isDark, walletList),
-                      loading: () => _buildLoadingField(isDark),
-                      error: (_, __) =>
-                          _buildErrorField(isDark, 'Unable to load wallets'),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // To wallet for transfers
-                    if (_selectedType == TransactionType.transfer) ...[
-                      wallets.when(
-                        data: (walletList) =>
-                            _buildToWalletSelector(isDark, walletList),
-                        loading: () => _buildLoadingField(isDark),
-                        error: (_, __) =>
-                            _buildErrorField(isDark, 'Unable to load wallets'),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
 
                     // Category selector (not for transfers)
                     if (_selectedType != TransactionType.transfer)
@@ -369,73 +343,6 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
     );
   }
 
-  Widget _buildWalletSelector(bool isDark, List<WalletEntity> wallets) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _selectedType == TransactionType.transfer ? 'From Wallet' : 'Wallet',
-          style: AppTypography.labelMedium(
-            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: AppleDropdown<String?>(
-            value: _selectedWalletId,
-            isDark: isDark,
-            leadingIcon: LucideIcons.wallet,
-            hint: 'Select wallet',
-            items: [
-              const AppleDropdownItem<String?>(value: null, label: 'Select wallet'),
-              ...wallets.map((w) => AppleDropdownItem<String?>(
-                value: w.id,
-                label: w.name,
-              )),
-            ],
-            onChanged: (value) => setState(() => _selectedWalletId = value),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildToWalletSelector(bool isDark, List<WalletEntity> wallets) {
-    final filteredWallets =
-        wallets.where((w) => w.id != _selectedWalletId).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'To Wallet',
-          style: AppTypography.labelMedium(
-            isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: AppleDropdown<String?>(
-            value: _selectedToWalletId,
-            isDark: isDark,
-            leadingIcon: LucideIcons.arrowRight,
-            hint: 'Select destination wallet',
-            items: [
-              const AppleDropdownItem<String?>(value: null, label: 'Select destination wallet'),
-              ...filteredWallets.map((w) => AppleDropdownItem<String?>(
-                value: w.id,
-                label: w.name,
-              )),
-            ],
-            onChanged: (value) => setState(() => _selectedToWalletId = value),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildCategorySelector(
       bool isDark, List<CategoryEntity> categories) {
     return Column(
@@ -587,16 +494,6 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
       return;
     }
 
-    if (_selectedWalletId == null) {
-      _showError('Please select a wallet');
-      return;
-    }
-
-    if (_selectedType == TransactionType.transfer &&
-        _selectedToWalletId == null) {
-      _showError('Please select a destination wallet');
-      return;
-    }
 
     if (_selectedType != TransactionType.transfer &&
         _selectedCategoryId == null) {
@@ -615,9 +512,9 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
           TransactionsCompanion(
             amount: Value(amount),
             type: Value(_selectedType),
-            walletId: Value(_selectedWalletId!),
+            walletId: const Value(null),
             categoryId: Value(_selectedCategoryId),
-            toWalletId: Value(_selectedToWalletId),
+            toWalletId: const Value(null),
             date: Value(_selectedDate),
             note: Value(_noteController.text.isEmpty
                 ? null
@@ -631,9 +528,9 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
             id: const Uuid().v4(),
             amount: amount,
             type: _selectedType,
-            walletId: _selectedWalletId!,
+            walletId: const Value(null),
             categoryId: Value(_selectedCategoryId),
-            toWalletId: Value(_selectedToWalletId),
+            toWalletId: const Value(null),
             date: _selectedDate,
             note: Value(_noteController.text.isEmpty
                 ? null

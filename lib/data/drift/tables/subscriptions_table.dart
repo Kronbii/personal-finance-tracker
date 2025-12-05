@@ -21,8 +21,8 @@ class Subscriptions extends Table {
   /// Billing frequency
   TextColumn get frequency => text().map(const BillingFrequencyConverter())();
 
-  /// Associated wallet ID
-  TextColumn get walletId => text()();
+  /// Associated wallet ID (nullable - wallets are for balance tracking only)
+  TextColumn get walletId => text().nullable()();
 
   /// Associated category ID
   TextColumn get categoryId => text()();

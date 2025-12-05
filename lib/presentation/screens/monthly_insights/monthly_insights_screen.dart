@@ -15,6 +15,8 @@ import '../../../data/providers/currency_provider.dart';
 import '../../widgets/apple_dropdown.dart';
 import '../../widgets/category_pie_chart.dart';
 import '../../widgets/stat_card.dart';
+import '../settings/widgets/manage_wallet_balances_modal.dart';
+import '../dashboard/providers/dashboard_providers.dart';
 import 'providers/monthly_insights_providers.dart';
 
 /// Monthly Insights Screen - Detailed view of a specific month's finances
@@ -41,6 +43,16 @@ class MonthlyInsightsScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32),
             sliver: SliverToBoxAdapter(
               child: _buildSummaryCards(ref, isDark),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+          // Wallet balances section
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            sliver: SliverToBoxAdapter(
+              child: _buildWalletBalancesSection(context, ref, isDark, selectedMonth),
             ),
           ),
 
@@ -875,7 +887,217 @@ class MonthlyInsightsScreen extends ConsumerWidget {
       'book': LucideIcons.book,
       'wallet': LucideIcons.wallet,
       'credit-card': LucideIcons.creditCard,
+      'zap': LucideIcons.zap,
+      'droplet': LucideIcons.droplet,
+      'wifi': LucideIcons.wifi,
+      'phone': LucideIcons.phone,
+      'shirt': LucideIcons.shirt,
+      'baby': LucideIcons.baby,
+      'dog': LucideIcons.dog,
+      'fuel': LucideIcons.fuel,
+      'lightbulb': LucideIcons.lightbulb,
+      'battery': LucideIcons.battery,
+      'battery-charging': LucideIcons.batteryCharging,
+      'plug': LucideIcons.plug,
+      'plug-zap': LucideIcons.plugZap,
+      'power': LucideIcons.power,
     };
     return iconMap[iconName] ?? LucideIcons.circle;
+  }
+
+  Widget _buildWalletBalancesSection(
+    BuildContext context,
+    WidgetRef ref,
+    bool isDark,
+    DateTime selectedMonth,
+  ) {
+    final wallets = ref.watch(walletsProvider);
+    final monthBalances = ref.watch(monthWalletBalancesProvider(selectedMonth));
+
+    return wallets.when(
+      data: (walletList) => monthBalances.when(
+        data: (balances) {
+          final totalBalance = balances.values.fold(0.0, (sum, val) => sum + val);
+          
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Wallet Balances',
+                        style: AppTypography.titleLarge(
+                          isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _showManageBalances(context, selectedMonth),
+                      icon: const Icon(LucideIcons.edit, size: 16),
+                      label: Text(
+                        'Update',
+                        style: AppTypography.labelMedium(AppColors.accentBlue),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (walletList.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'No wallets found',
+                        style: AppTypography.bodyMedium(
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      ...walletList.map((wallet) {
+                        final balance = balances[wallet.id] ?? wallet.initialBalance;
+                        final color = AppColors.getWalletGradient(wallet.gradientIndex)[0];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  LucideIcons.wallet,
+                                  size: 20,
+                                  color: color,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      wallet.name,
+                                      style: AppTypography.titleMedium(
+                                        isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
+                                      ),
+                                    ),
+                                    Text(
+                                      DateFormat('MMMM yyyy').format(selectedMonth),
+                                      style: AppTypography.caption(
+                                        isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                CurrencyFormatter.format(
+                                  balance,
+                                  currencyCode: wallet.currency,
+                                ),
+                                style: AppTypography.moneySmall(
+                                  isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      const Divider(height: 32),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Total',
+                              style: AppTypography.titleMedium(
+                                isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(
+                              totalBalance,
+                              currencyCode: walletList.isNotEmpty
+                                  ? walletList.first.currency
+                                  : 'USD',
+                            ),
+                            style: AppTypography.moneyLarge(
+                              AppColors.accentBlue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          );
+        },
+        loading: () => Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+              width: 1,
+            ),
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => _buildErrorCard(isDark, 'Error loading balances'),
+      ),
+      loading: () => Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+            width: 1,
+          ),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => _buildErrorCard(isDark, 'Error loading wallets'),
+    );
+  }
+
+  Future<void> _showManageBalances(BuildContext context, DateTime month) async {
+    final result = await ManageWalletBalancesModal.show(context);
+    if (result == true && context.mounted) {
+      // Refresh the balances
+      // The provider will automatically update
+    }
   }
 }

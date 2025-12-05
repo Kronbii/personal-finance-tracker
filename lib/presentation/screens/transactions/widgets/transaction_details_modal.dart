@@ -50,7 +50,6 @@ class _TransactionDetailsModalState
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
-    final wallets = ref.watch(walletsProvider);
     final categoryMap = ref.watch(categoryMapProvider);
     final currencySettings = ref.watch(currencySettingsProvider);
 
@@ -85,20 +84,10 @@ class _TransactionDetailsModalState
                     const SizedBox(height: 24),
 
                     // Transaction Details
-                    wallets.when(
-                      data: (walletList) => categoryMap.when(
-                        data: (categories) => _buildDetailsSection(
-                          isDark,
-                          walletList,
-                          categories,
-                        ),
-                        loading: () => const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                        error: (_, __) => const SizedBox.shrink(),
+                    categoryMap.when(
+                      data: (categories) => _buildDetailsSection(
+                        isDark,
+                        categories,
                       ),
                       loading: () => const Center(
                         child: Padding(
@@ -272,19 +261,8 @@ class _TransactionDetailsModalState
 
   Widget _buildDetailsSection(
     bool isDark,
-    List<WalletEntity> wallets,
     Map<String, CategoryEntity> categories,
   ) {
-    final wallet = wallets.firstWhere(
-      (w) => w.id == widget.transaction.walletId,
-      orElse: () => wallets.isNotEmpty ? wallets.first : throw StateError('No wallets'),
-    );
-    final toWallet = widget.transaction.toWalletId != null
-        ? wallets.firstWhere(
-            (w) => w.id == widget.transaction.toWalletId,
-            orElse: () => wallet,
-          )
-        : null;
     final category = widget.transaction.categoryId != null
         ? categories[widget.transaction.categoryId]
         : null;
@@ -301,22 +279,6 @@ class _TransactionDetailsModalState
           ),
         ),
         const SizedBox(height: 16),
-        _buildDetailRow(
-          isDark,
-          'Wallet',
-          wallet.name,
-          LucideIcons.wallet,
-        ),
-        if (widget.transaction.type == TransactionType.transfer &&
-            toWallet != null) ...[
-          const SizedBox(height: 12),
-          _buildDetailRow(
-            isDark,
-            'To Wallet',
-            toWallet.name,
-            LucideIcons.arrowRight,
-          ),
-        ],
         if (category != null) ...[
           const SizedBox(height: 12),
           _buildDetailRow(
@@ -743,7 +705,7 @@ class _TransactionDetailsModalState
         id: const Uuid().v4(),
         amount: widget.transaction.amount,
         type: widget.transaction.type,
-        walletId: widget.transaction.walletId,
+        walletId: Value(widget.transaction.walletId),
         categoryId: Value(widget.transaction.categoryId),
         toWalletId: Value(widget.transaction.toWalletId),
         date: DateTime.now(),
@@ -912,6 +874,22 @@ class _TransactionDetailsModalState
       'circle': LucideIcons.circle,
       'repeat': LucideIcons.repeat,
       'arrow-right-left': LucideIcons.arrowRightLeft,
+      'book': LucideIcons.book,
+      'film': LucideIcons.film,
+      'zap': LucideIcons.zap,
+      'droplet': LucideIcons.droplet,
+      'wifi': LucideIcons.wifi,
+      'phone': LucideIcons.phone,
+      'shirt': LucideIcons.shirt,
+      'baby': LucideIcons.baby,
+      'dog': LucideIcons.dog,
+      'fuel': LucideIcons.fuel,
+      'lightbulb': LucideIcons.lightbulb,
+      'battery': LucideIcons.battery,
+      'battery-charging': LucideIcons.batteryCharging,
+      'plug': LucideIcons.plug,
+      'plug-zap': LucideIcons.plugZap,
+      'power': LucideIcons.power,
     };
     return iconMap[iconName] ?? LucideIcons.circle;
   }

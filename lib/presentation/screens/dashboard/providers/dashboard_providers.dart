@@ -9,14 +9,24 @@ final walletsProvider = StreamProvider<List<WalletEntity>>((ref) {
   return ref.watch(walletsDaoProvider).watchAllWallets();
 });
 
-/// Provider for all expense categories
+/// Provider for all expense categories (includes disabled - for management)
 final expenseCategoriesProvider = StreamProvider<List<CategoryEntity>>((ref) {
   return ref.watch(categoriesDaoProvider).watchExpenseCategories();
 });
 
-/// Provider for all income categories
+/// Provider for all income categories (includes disabled - for management)
 final incomeCategoriesProvider = StreamProvider<List<CategoryEntity>>((ref) {
   return ref.watch(categoriesDaoProvider).watchIncomeCategories();
+});
+
+/// Provider for enabled expense categories only (for dropdowns/selectors)
+final enabledExpenseCategoriesProvider = StreamProvider<List<CategoryEntity>>((ref) {
+  return ref.watch(categoriesDaoProvider).watchEnabledExpenseCategories();
+});
+
+/// Provider for enabled income categories only (for dropdowns/selectors)
+final enabledIncomeCategoriesProvider = StreamProvider<List<CategoryEntity>>((ref) {
+  return ref.watch(categoriesDaoProvider).watchEnabledIncomeCategories();
 });
 
 /// Provider for current month's transactions
@@ -29,13 +39,8 @@ final currentMonthTransactionsProvider =
       );
 });
 
-/// Provider for wallet balances (computed from transactions)
-/// Automatically updates when transactions change
+/// Provider for wallet balances (from latest monthly balance entries)
 final walletBalancesProvider = FutureProvider<Map<String, double>>((ref) async {
-  // Watch all transactions stream to trigger recalculation when transactions change
-  // (wallet balances need all transactions, not just current month)
-  ref.watch(allTransactionsProvider);
-  
   final wallets = await ref.watch(walletsProvider.future);
   final transactionsDao = ref.watch(transactionsDaoProvider);
 

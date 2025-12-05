@@ -15,8 +15,8 @@ class Transactions extends Table {
   /// Transaction type: expense, income, or transfer
   TextColumn get type => text().map(const TransactionTypeConverter())();
 
-  /// Associated wallet ID (source wallet for transfers)
-  TextColumn get walletId => text()();
+  /// Associated wallet ID (nullable - wallets are for balance tracking only)
+  TextColumn get walletId => text().nullable()();
 
   /// Category ID (nullable for transfers)
   TextColumn get categoryId => text().nullable()();

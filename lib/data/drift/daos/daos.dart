@@ -2,6 +2,7 @@
 library;
 
 export 'wallets_dao.dart';
+export 'wallet_balances_dao.dart';
 export 'categories_dao.dart';
 export 'transactions_dao.dart';
 export 'subscriptions_dao.dart';

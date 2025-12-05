@@ -20,18 +20,7 @@ class TransactionFilterNotifier extends Notifier<TransactionFilter> {
   void setFilter(TransactionFilter filter) => state = filter;
 }
 
-/// Provider for selected wallet filter (null = all wallets)
-final selectedWalletFilterProvider =
-    NotifierProvider<WalletFilterNotifier, String?>(
-  WalletFilterNotifier.new,
-);
-
-class WalletFilterNotifier extends Notifier<String?> {
-  @override
-  String? build() => null;
-
-  void setWallet(String? walletId) => state = walletId;
-}
+// Wallet filtering removed - wallets are for balance tracking only
 
 /// Provider for selected category filter (null = all categories)
 final selectedCategoryFilterProvider =
@@ -57,6 +46,33 @@ class SearchQueryNotifier extends Notifier<String> {
   String build() => '';
 
   void setQuery(String query) => state = query;
+}
+
+/// Provider for selected month (null = show all transactions)
+final selectedMonthProvider =
+    NotifierProvider<SelectedMonthNotifier, DateTime?>(
+  SelectedMonthNotifier.new,
+);
+
+class SelectedMonthNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => DateTime.now(); // Default to current month
+
+  void setMonth(DateTime? month) => state = month;
+  
+  void setCurrentMonth() => state = DateTime.now();
+  
+  void setPreviousMonth() {
+    if (state != null) {
+      state = DateTime(state!.year, state!.month - 1, 1);
+    }
+  }
+  
+  void setNextMonth() {
+    if (state != null) {
+      state = DateTime(state!.year, state!.month + 1, 1);
+    }
+  }
 }
 
 /// Provider for selected date range (null = no date filter)
@@ -90,13 +106,23 @@ final filteredTransactionsProvider =
     Provider<AsyncValue<List<TransactionEntity>>>((ref) {
   final transactionsAsync = ref.watch(allTransactionsProvider);
   final filter = ref.watch(transactionFilterProvider);
-  final walletFilter = ref.watch(selectedWalletFilterProvider);
   final categoryFilter = ref.watch(selectedCategoryFilterProvider);
   final searchQuery = ref.watch(transactionSearchQueryProvider);
-  final dateRange = ref.watch(transactionDateRangeProvider);
+  final selectedMonth = ref.watch(selectedMonthProvider);
 
   return transactionsAsync.whenData((transactions) {
     var filtered = transactions;
+
+    // Apply month filter
+    if (selectedMonth != null) {
+      final start = DateTime(selectedMonth.year, selectedMonth.month, 1);
+      final end = DateTime(selectedMonth.year, selectedMonth.month + 1, 0, 23, 59, 59);
+      filtered = filtered
+          .where((t) =>
+              t.date.isAfter(start.subtract(const Duration(days: 1))) &&
+              t.date.isBefore(end.add(const Duration(days: 1))))
+          .toList();
+    }
 
     // Apply type filter
     if (filter != TransactionFilter.all) {
@@ -114,29 +140,12 @@ final filteredTransactionsProvider =
       }).toList();
     }
 
-    // Apply wallet filter
-    if (walletFilter != null) {
-      filtered = filtered
-          .where((t) =>
-              t.walletId == walletFilter || t.toWalletId == walletFilter)
-          .toList();
-    }
-
     // Apply category filter
     if (categoryFilter != null) {
       filtered =
           filtered.where((t) => t.categoryId == categoryFilter).toList();
     }
 
-    // Apply date range filter
-    if (dateRange != null) {
-      filtered = filtered
-          .where((t) =>
-              t.date.isAfter(
-                  dateRange.start.subtract(const Duration(days: 1))) &&
-              t.date.isBefore(dateRange.end.add(const Duration(days: 1))))
-          .toList();
-    }
 
     // Apply search filter
     if (searchQuery.isNotEmpty) {
