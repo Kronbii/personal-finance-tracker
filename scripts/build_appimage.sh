@@ -124,14 +124,8 @@ echo "AppImage built successfully!"
 echo "Location: $PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage"
 echo "========================================"
 
-# Auto-install to ~/.local/bin
-echo "Installing to ~/.local/bin/ree.AppImage..."
-mkdir -p ~/.local/bin
-cp "$PROJECT_DIR/build/REE-$VERSION-x86_64.AppImage" ~/.local/bin/ree.AppImage
-chmod +x ~/.local/bin/ree.AppImage
-
-echo ""
-echo "✓ Installed! You can now launch REE from your app menu."
-echo "  Or run: ~/.local/bin/ree.AppImage"
+# Note: Auto-install is handled by safe_update_appimage.sh
+# This script only builds the AppImage, it doesn't install it
+# to preserve database safety during updates
 
 

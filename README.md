@@ -135,13 +135,40 @@
 
 ### Building AppImage
 
-To create a distributable AppImage:
+#### Safe Update (Recommended for Production)
+
+To safely update an existing installation while preserving your database:
+
+```bash
+bash scripts/safe_update_appimage.sh
+```
+
+This script will:
+- ✅ Backup your production database automatically
+- ✅ Backup the existing AppImage
+- ✅ Build and install the new AppImage
+- ✅ Verify database integrity
+- ✅ Keep the last 5 backups for rollback
+
+#### Manual Build
+
+To build the AppImage manually (for development):
 
 ```bash
 bash scripts/build_appimage.sh
 ```
 
-The AppImage will be built and installed to `~/.local/bin/ree.AppImage`.
+The AppImage will be built to `build/REE-1.0.0-x86_64.AppImage`.
+
+#### Restoring Database
+
+If you need to restore your database from a backup:
+
+```bash
+bash scripts/restore_database.sh
+```
+
+This will list all available backups and let you choose which one to restore.
 
 ---
 
