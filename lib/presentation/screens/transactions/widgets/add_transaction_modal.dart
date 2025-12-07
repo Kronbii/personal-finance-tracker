@@ -554,8 +554,24 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: AppTypography.bodyMedium(Colors.white),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: AppColors.accentRed,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
     );
   }

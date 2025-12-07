@@ -623,27 +623,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       _lastSyncTime = DateTime.now();
     });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Sync completed successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    // Sync completed silently
   }
 
   String _getGreeting() {

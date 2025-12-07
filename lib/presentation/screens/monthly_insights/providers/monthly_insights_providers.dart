@@ -84,11 +84,12 @@ final monthIncomeByCategoryProvider =
 });
 
 /// Provider for category map
+/// Uses StreamProvider to automatically update when categories change
 final monthCategoryMapProvider =
-    FutureProvider<Map<String, CategoryEntity>>((ref) async {
-  final categoriesDao = ref.watch(categoriesDaoProvider);
-  final categories = await categoriesDao.getAllCategories();
-  return {for (var c in categories) c.id: c};
+    StreamProvider<Map<String, CategoryEntity>>((ref) {
+  return ref.watch(categoriesDaoProvider).watchAllCategories().map((categories) {
+    return {for (var c in categories) c.id: c};
+  });
 });
 
 /// Daily average data class

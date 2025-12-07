@@ -448,6 +448,7 @@ class _AddWalletBalanceModalState
         ),
         backgroundColor: AppColors.accentRed,
         behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

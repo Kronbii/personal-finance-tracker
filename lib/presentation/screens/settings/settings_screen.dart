@@ -521,29 +521,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Navigator.of(context, rootNavigator: true).pop();
       }
 
-      if (filePath != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Transactions exported successfully',
-                    style: AppTypography.bodyMedium(Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-      }
+      // Export completed silently
     } catch (e) {
       // Close loading dialog safely if still open
       if (mounted && Navigator.of(context, rootNavigator: true).canPop()) {
@@ -567,6 +545,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             backgroundColor: AppColors.accentRed,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -713,6 +692,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             backgroundColor: AppColors.accentRed,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -768,29 +748,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Navigator.of(context, rootNavigator: true).pop();
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'All data cleared successfully',
-                    style: AppTypography.bodyMedium(Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-      }
+      // Data cleared silently
     } catch (e) {
       // Close loading dialog safely if still open
       if (mounted && Navigator.of(context, rootNavigator: true).canPop()) {
@@ -814,6 +772,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             backgroundColor: AppColors.accentRed,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -828,77 +787,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context,
       existingWallet: wallet,
     );
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Wallet updated successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    // Wallet updated silently
   }
 
   Future<void> _addWallet() async {
-    final result = await AddWalletModal.show(context);
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Wallet added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    await AddWalletModal.show(context);
   }
 
   Future<void> _manageWalletBalances() async {
-    final result = await ManageWalletBalancesModal.show(context);
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Wallet balances updated',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    await ManageWalletBalancesModal.show(context);
   }
 
   Future<void> _manageCategories(String type) async {
@@ -906,40 +803,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ? CategoryType.expense
         : CategoryType.income;
     
-    final result = await ManageCategoriesModal.show(
+    await ManageCategoriesModal.show(
       context,
       initialTab: categoryType,
     );
     
-    if (result == true && mounted) {
-      // Categories were modified, the stream will automatically update
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Categories updated',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    // Categories were modified, the stream will automatically update
   }
 
   void _configureSupabase() {
     // TODO: Implement Supabase configuration
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Supabase configuration coming soon')),
-    );
   }
 
   Future<void> _syncNow() async {
@@ -950,23 +823,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (mounted) {
       setState(() => _isSyncing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Sync completed',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      // Sync completed silently
     }
   }
 }

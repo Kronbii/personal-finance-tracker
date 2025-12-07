@@ -360,28 +360,7 @@ class DebtsScreen extends ConsumerWidget {
   }
 
   Future<void> _showAddDebt(BuildContext context, WidgetRef ref) async {
-    final result = await AddDebtModal.show(context);
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Debt added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    await AddDebtModal.show(context);
   }
 
   Future<void> _showEditDebt(
@@ -389,31 +368,10 @@ class DebtsScreen extends ConsumerWidget {
     WidgetRef ref,
     DebtEntity debt,
   ) async {
-    final result = await AddDebtModal.show(
+    await AddDebtModal.show(
       context,
       existingDebt: debt,
     );
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Debt updated successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
   }
 
   String _formatCurrency(double amount, WidgetRef ref) {

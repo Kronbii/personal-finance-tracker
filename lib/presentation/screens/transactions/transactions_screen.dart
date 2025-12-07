@@ -564,36 +564,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   void _showFilterOptions() {
     // TODO: Implement advanced filter options modal
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Advanced filters coming soon'),
-      ),
-    );
   }
 
   Future<void> _showAddTransactionModal() async {
-    final result = await AddTransactionModal.show(context);
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Transaction added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    await AddTransactionModal.show(context);
   }
 
   void _showTransactionDetails(TransactionEntity transaction) {

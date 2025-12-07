@@ -316,27 +316,6 @@ class _ManageWalletBalancesModalState
       // Invalidate the provider for the month that was updated
       final month = DateTime(_selectedDate.year, _selectedDate.month, 1);
       ref.invalidate(monthWalletBalancesProvider(month));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                existingBalance != null
-                    ? 'Balance updated'
-                    : 'Balance added',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
     }
   }
 

@@ -671,27 +671,7 @@ class _TransactionDetailsModalState
       context,
       existingTransaction: widget.transaction,
     );
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Transaction updated',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    // Transaction updated silently
   }
 
   Future<void> _duplicateTransaction() async {
@@ -716,33 +696,29 @@ class _TransactionDetailsModalState
 
       await transactionsDao.insertTransaction(newTransaction);
 
+      // Transaction duplicated silently
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
                 const SizedBox(width: 12),
-                Text(
-                  'Transaction duplicated',
-                  style: AppTypography.bodyMedium(Colors.white),
+                Expanded(
+                  child: Text(
+                    'Failed to duplicate: $e',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
                 ),
               ],
             ),
-            backgroundColor: AppColors.income,
+            backgroundColor: AppColors.accentRed,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to duplicate: $e'),
-            backgroundColor: AppColors.accentRed,
           ),
         );
       }
@@ -787,33 +763,30 @@ class _TransactionDetailsModalState
 
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Text(
-                  'Transaction deleted',
-                  style: AppTypography.bodyMedium(Colors.white),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isDeleting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to delete: $e'),
+            content: Row(
+              children: [
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Failed to delete: $e',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.accentRed,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }

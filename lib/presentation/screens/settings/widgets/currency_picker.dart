@@ -65,8 +65,24 @@ class _CurrencyPickerModalState extends ConsumerState<CurrencyPickerModal> {
     if (rate == null || rate <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Invalid conversion rate'),
+          content: Row(
+            children: [
+              const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Invalid conversion rate',
+                  style: AppTypography.bodyMedium(Colors.white),
+                ),
+              ),
+            ],
+          ),
           backgroundColor: AppColors.accentRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       return;
@@ -83,32 +99,29 @@ class _CurrencyPickerModalState extends ConsumerState<CurrencyPickerModal> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Text(
-                  'Currency settings updated',
-                  style: AppTypography.bodyMedium(Colors.white),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save: $e'),
+            content: Row(
+              children: [
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Failed to save: $e',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.accentRed,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }

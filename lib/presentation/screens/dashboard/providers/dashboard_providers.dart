@@ -99,8 +99,10 @@ final monthlySpendingByCategoryProvider =
 });
 
 /// Provider for category details map
-final categoryMapProvider = FutureProvider<Map<String, CategoryEntity>>((ref) async {
-  final categories = await ref.watch(categoriesDaoProvider).getAllCategories();
-  return {for (final c in categories) c.id: c};
+/// Uses StreamProvider to automatically update when categories change
+final categoryMapProvider = StreamProvider<Map<String, CategoryEntity>>((ref) {
+  return ref.watch(categoriesDaoProvider).watchAllCategories().map((categories) {
+    return {for (final c in categories) c.id: c};
+  });
 });
 

@@ -611,33 +611,30 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
       await transactionsDao.insertTransactions(transactions);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Text(
-                  '$count transactions saved successfully',
-                  style: AppTypography.bodyMedium(Colors.white),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
-
         _clearAll();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving transactions: $e'),
+            content: Row(
+              children: [
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Error saving transactions: $e',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.accentRed,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }

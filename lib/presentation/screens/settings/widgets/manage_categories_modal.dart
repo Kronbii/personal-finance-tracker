@@ -467,55 +467,14 @@ class _ManageCategoriesModalState
       context,
       defaultType: type,
     );
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Category added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    // Category added silently
   }
 
   Future<void> _editCategory(CategoryEntity category) async {
-    final result = await AddCategoryModal.show(
+    await AddCategoryModal.show(
       context,
       existingCategory: category,
     );
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Category updated successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
   }
 
   Future<void> _toggleCategoryEnabled(CategoryEntity category, bool enabled) async {
@@ -525,36 +484,29 @@ class _ManageCategoriesModalState
         category.id,
         CategoriesCompanion(isEnabled: Value(enabled)),
       );
-
+      // Category enabled/disabled silently
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
+                const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
                 const SizedBox(width: 12),
-                Text(
-                  enabled
-                      ? 'Category enabled'
-                      : 'Category disabled',
-                  style: AppTypography.bodyMedium(Colors.white),
+                Expanded(
+                  child: Text(
+                    'Error updating category: $e',
+                    style: AppTypography.bodyMedium(Colors.white),
+                  ),
                 ),
               ],
             ),
-            backgroundColor: AppColors.income,
+            backgroundColor: AppColors.accentRed,
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating category: $e'),
-            backgroundColor: AppColors.accentRed,
           ),
         );
       }
@@ -620,33 +572,29 @@ class _ManageCategoriesModalState
         final categoriesDao = ref.read(categoriesDaoProvider);
         await categoriesDao.deleteCategory(category.id);
 
+        // Category deleted silently
+      } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(LucideIcons.check, color: Colors.white, size: 18),
+                  const Icon(LucideIcons.alertCircle, color: Colors.white, size: 18),
                   const SizedBox(width: 12),
-                  Text(
-                    'Category deleted',
-                    style: AppTypography.bodyMedium(Colors.white),
+                  Expanded(
+                    child: Text(
+                      'Error deleting category: $e',
+                      style: AppTypography.bodyMedium(Colors.white),
+                    ),
                   ),
                 ],
               ),
-              backgroundColor: AppColors.income,
+              backgroundColor: AppColors.accentRed,
               behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting category: $e'),
-              backgroundColor: AppColors.accentRed,
             ),
           );
         }

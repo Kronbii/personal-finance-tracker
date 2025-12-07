@@ -309,28 +309,7 @@ class SubscriptionsScreen extends ConsumerWidget {
   }
 
   Future<void> _showAddSubscription(BuildContext context, WidgetRef ref) async {
-    final result = await AddSubscriptionModal.show(context);
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Subscription added successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
+    await AddSubscriptionModal.show(context);
   }
 
   Future<void> _showEditSubscription(
@@ -338,31 +317,10 @@ class SubscriptionsScreen extends ConsumerWidget {
     WidgetRef ref,
     SubscriptionEntity subscription,
   ) async {
-    final result = await AddSubscriptionModal.show(
+    await AddSubscriptionModal.show(
       context,
       existingSubscription: subscription,
     );
-    if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(LucideIcons.check, color: Colors.white, size: 18),
-              const SizedBox(width: 12),
-              Text(
-                'Subscription updated successfully',
-                style: AppTypography.bodyMedium(Colors.white),
-              ),
-            ],
-          ),
-          backgroundColor: AppColors.income,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
   }
 
   String _formatCurrency(double amount, WidgetRef ref) {

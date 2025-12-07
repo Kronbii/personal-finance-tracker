@@ -930,25 +930,6 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(LucideIcons.check, color: Colors.white, size: 18),
-                const SizedBox(width: 12),
-                Text(
-                  _isEditing ? 'Debt updated' : 'Debt added',
-                  style: AppTypography.bodyMedium(Colors.white),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.income,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
@@ -975,6 +956,7 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
         ),
         backgroundColor: AppColors.accentRed,
         behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 80, left: 16, right: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
