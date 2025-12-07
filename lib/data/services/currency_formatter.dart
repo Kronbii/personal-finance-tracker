@@ -86,11 +86,13 @@ class CurrencyFormatter {
     // Add thousand separators
     if (useGrouping && decimalPlaces > 0) {
       final parts = formatted.split('.');
-      final intPart = parts[0].replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]},',
-      );
-      formatted = '$intPart.${parts[1]}';
+      if (parts.length >= 2) {
+        final intPart = parts[0].replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+        formatted = '$intPart.${parts[1]}';
+      }
     } else if (useGrouping) {
       formatted = formatted.replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),

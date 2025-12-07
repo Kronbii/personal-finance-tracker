@@ -12,6 +12,11 @@ import '../../../../data/drift/database.dart';
 import '../../../../data/providers/database_provider.dart';
 import '../../../widgets/apple_dropdown.dart';
 
+/// Intent for save action
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
+
 /// Modal dialog for adding/editing wallets
 class AddWalletModal extends ConsumerStatefulWidget {
   final WalletEntity? existingWallet;
@@ -42,6 +47,8 @@ class AddWalletModal extends ConsumerStatefulWidget {
 class _AddWalletModalState extends ConsumerState<AddWalletModal> {
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
+  final _nameFocusNode = FocusNode();
+  final _balanceFocusNode = FocusNode();
   String _selectedCurrency = 'USD';
   int _selectedGradientIndex = 0;
   bool _isLoading = false;
@@ -85,6 +92,8 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
+    _nameFocusNode.dispose();
+    _balanceFocusNode.dispose();
     super.dispose();
   }
 
@@ -92,7 +101,32 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
 
-    return Dialog(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
+      },
+      child: Actions(
+        actions: {
+          _SaveIntent: CallbackAction<_SaveIntent>(
+            onInvoke: (_) {
+              if (!_isLoading) {
+                _saveWallet();
+              }
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              if (!_isLoading) {
+                _saveWallet();
+              }
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 500,
@@ -145,6 +179,9 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
           ],
         ),
       ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -195,6 +232,9 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
         const SizedBox(height: 8),
         TextField(
           controller: _nameController,
+          focusNode: _nameFocusNode,
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) => _balanceFocusNode.requestFocus(),
           style: AppTypography.bodyMedium(
             isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
@@ -232,7 +272,14 @@ class _AddWalletModalState extends ConsumerState<AddWalletModal> {
         const SizedBox(height: 8),
         TextField(
           controller: _balanceController,
+          focusNode: _balanceFocusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (!_isLoading) {
+              _saveWallet();
+            }
+          },
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,2}')),
           ],

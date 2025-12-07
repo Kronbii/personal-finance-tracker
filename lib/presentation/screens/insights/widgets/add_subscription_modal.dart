@@ -15,6 +15,11 @@ import '../../../../data/providers/database_provider.dart';
 import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
+/// Intent for save action
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
+
 /// Modal dialog for adding/editing subscriptions
 class AddSubscriptionModal extends ConsumerStatefulWidget {
   final SubscriptionEntity? existingSubscription;
@@ -48,6 +53,11 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   final _reminderDaysController = TextEditingController(text: '3');
+  final _nameFocusNode = FocusNode();
+  final _amountFocusNode = FocusNode();
+  final _categoryFocusNode = FocusNode();
+  final _noteFocusNode = FocusNode();
+  final _reminderDaysFocusNode = FocusNode();
   
   BillingFrequency _selectedFrequency = BillingFrequency.monthly;
   String? _selectedCategoryId;
@@ -81,6 +91,11 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
     _amountController.dispose();
     _noteController.dispose();
     _reminderDaysController.dispose();
+    _nameFocusNode.dispose();
+    _amountFocusNode.dispose();
+    _categoryFocusNode.dispose();
+    _noteFocusNode.dispose();
+    _reminderDaysFocusNode.dispose();
     super.dispose();
   }
 
@@ -89,7 +104,32 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
     final isDark = ref.watch(isDarkModeProvider);
     final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
 
-    return Dialog(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
+      },
+      child: Actions(
+        actions: {
+          _SaveIntent: CallbackAction<_SaveIntent>(
+            onInvoke: (_) {
+              if (!_isLoading) {
+                _saveSubscription();
+              }
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              if (!_isLoading) {
+                _saveSubscription();
+              }
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 500,
@@ -166,6 +206,9 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
             // Actions
             _buildActions(isDark),
           ],
+        ),
+      ),
+          ),
         ),
       ),
     );
@@ -254,6 +297,9 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
           child: TextField(
             controller: _nameController,
+            focusNode: _nameFocusNode,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _amountFocusNode.requestFocus(),
             style: AppTypography.bodyMedium(
               isDark
                   ? AppColors.darkTextPrimary
@@ -313,7 +359,10 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
           child: TextField(
             controller: _amountController,
+            focusNode: _amountFocusNode,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _categoryFocusNode.requestFocus(),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
             ],
@@ -405,6 +454,8 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
             isDark: isDark,
             leadingIcon: LucideIcons.tag,
             hint: 'Select category',
+            focusNode: _categoryFocusNode,
+            onSubmitted: () => _noteFocusNode.requestFocus(),
             items: [
               const AppleDropdownItem<String?>(value: null, label: 'Select category'),
               ...categories.map((category) => AppleDropdownItem<String?>(
@@ -617,7 +668,14 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
           child: TextField(
             controller: _reminderDaysController,
+            focusNode: _reminderDaysFocusNode,
             keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (!_isLoading) {
+                _saveSubscription();
+              }
+            },
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             style: AppTypography.bodyMedium(
               isDark
@@ -678,7 +736,10 @@ class _AddSubscriptionModalState extends ConsumerState<AddSubscriptionModal> {
           ),
           child: TextField(
             controller: _noteController,
+            focusNode: _noteFocusNode,
             maxLines: 3,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _reminderDaysFocusNode.requestFocus(),
             style: AppTypography.bodyMedium(
               isDark
                   ? AppColors.darkTextPrimary

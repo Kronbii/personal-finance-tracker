@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:uuid/uuid.dart';
@@ -10,6 +11,11 @@ import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/drift/tables/categories_table.dart';
 import '../../../../data/providers/database_provider.dart';
+
+/// Intent for save action
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
 
 /// Modal dialog for adding/editing categories
 class AddCategoryModal extends ConsumerStatefulWidget {
@@ -44,6 +50,7 @@ class AddCategoryModal extends ConsumerStatefulWidget {
 
 class _AddCategoryModalState extends ConsumerState<AddCategoryModal> {
   final _nameController = TextEditingController();
+  final _nameFocusNode = FocusNode();
   late CategoryType _selectedType;
   String _selectedIcon = 'circle';
   String _selectedColor = '#0A84FF';
@@ -121,6 +128,7 @@ class _AddCategoryModalState extends ConsumerState<AddCategoryModal> {
   @override
   void dispose() {
     _nameController.dispose();
+    _nameFocusNode.dispose();
     super.dispose();
   }
 
@@ -128,7 +136,32 @@ class _AddCategoryModalState extends ConsumerState<AddCategoryModal> {
   Widget build(BuildContext context) {
     final isDark = ref.watch(isDarkModeProvider);
 
-    return Dialog(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
+      },
+      child: Actions(
+        actions: {
+          _SaveIntent: CallbackAction<_SaveIntent>(
+            onInvoke: (_) {
+              if (!_isLoading) {
+                _saveCategory();
+              }
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              if (!_isLoading) {
+                _saveCategory();
+              }
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 600,
@@ -179,6 +212,9 @@ class _AddCategoryModalState extends ConsumerState<AddCategoryModal> {
             // Actions
             _buildActions(isDark),
           ],
+        ),
+      ),
+          ),
         ),
       ),
     );
@@ -302,6 +338,13 @@ class _AddCategoryModalState extends ConsumerState<AddCategoryModal> {
         const SizedBox(height: 8),
         TextField(
           controller: _nameController,
+          focusNode: _nameFocusNode,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (!_isLoading) {
+              _saveCategory();
+            }
+          },
           style: AppTypography.bodyMedium(
             isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),

@@ -345,7 +345,7 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                           name: item.name,
                           amount: item.amount,
                           color: item.color,
-                          percentage: (item.amount / total * 100),
+                          percentage: total > 0 ? (item.amount / total * 100) : 0.0,
                           ref: ref,
                         )),
                     if (chartData.length > 4)
@@ -949,10 +949,12 @@ class MonthlyInsightsScreen extends ConsumerWidget {
               );
             }
 
-            final savingsPercentage =
-                (summary.netSavings / summary.totalIncome * 100).clamp(0.0, 100.0);
-            final expensesPercentage =
-                (summary.totalExpenses / summary.totalIncome * 100).clamp(0.0, 100.0);
+            final savingsPercentage = summary.totalIncome > 0
+                ? (summary.netSavings / summary.totalIncome * 100).clamp(0.0, 100.0)
+                : 0.0;
+            final expensesPercentage = summary.totalIncome > 0
+                ? (summary.totalExpenses / summary.totalIncome * 100).clamp(0.0, 100.0)
+                : 0.0;
 
             // Sort expenses by amount (descending)
             final sortedExpenses = expenses.entries.toList()
@@ -1066,8 +1068,9 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                     // Expense categories
                     ...sortedExpenses.map((entry) {
                       final category = categories[entry.key];
-                      final categoryPercentage =
-                          (entry.value / summary.totalIncome * 100).clamp(0.0, 100.0);
+                      final categoryPercentage = summary.totalIncome > 0
+                          ? (entry.value / summary.totalIncome * 100).clamp(0.0, 100.0)
+                          : 0.0;
                       final color = _parseHexColor(category?.colorHex ?? '#8E8E93');
 
                       return Padding(

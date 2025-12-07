@@ -15,6 +15,11 @@ import '../../../../data/providers/database_provider.dart';
 import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
+/// Intent for save action
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
+
 /// Modal dialog for adding/editing transactions
 class AddTransactionModal extends ConsumerStatefulWidget {
   final TransactionEntity? existingTransaction;
@@ -47,6 +52,9 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   late TransactionType _selectedType;
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
+  final _amountFocusNode = FocusNode();
+  final _categoryFocusNode = FocusNode();
+  final _noteFocusNode = FocusNode();
   DateTime _selectedDate = DateTime.now();
   String? _selectedCategoryId;
   bool _isLoading = false;
@@ -72,6 +80,9 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
+    _amountFocusNode.dispose();
+    _categoryFocusNode.dispose();
+    _noteFocusNode.dispose();
     super.dispose();
   }
 
@@ -81,7 +92,32 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
     final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
     final incomeCategories = ref.watch(enabledIncomeCategoriesProvider);
 
-    return Dialog(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
+      },
+      child: Actions(
+        actions: {
+          _SaveIntent: CallbackAction<_SaveIntent>(
+            onInvoke: (_) {
+              if (!_isLoading) {
+                _saveTransaction();
+              }
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              if (!_isLoading) {
+                _saveTransaction();
+              }
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 500,
@@ -154,6 +190,9 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
             // Actions
             _buildActions(isDark),
           ],
+        ),
+      ),
+          ),
         ),
       ),
     );
@@ -269,7 +308,16 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
         const SizedBox(height: 8),
         TextField(
           controller: _amountController,
+          focusNode: _amountFocusNode,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) {
+            if (_selectedType != TransactionType.transfer) {
+              _categoryFocusNode.requestFocus();
+            } else {
+              _noteFocusNode.requestFocus();
+            }
+          },
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
           ],
@@ -362,6 +410,11 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
             isDark: isDark,
             leadingIcon: LucideIcons.tag,
             hint: 'Select category',
+            focusNode: _categoryFocusNode,
+            onSubmitted: () {
+              // Move to note field after category is selected
+              _noteFocusNode.requestFocus();
+            },
             items: [
               const AppleDropdownItem<String?>(value: null, label: 'Select category'),
               ...categories.map((c) => AppleDropdownItem<String?>(
@@ -389,7 +442,14 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
         const SizedBox(height: 8),
         TextField(
           controller: _noteController,
+          focusNode: _noteFocusNode,
           maxLines: 2,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (!_isLoading) {
+              _saveTransaction();
+            }
+          },
           style: AppTypography.bodyMedium(
             isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),

@@ -15,6 +15,11 @@ import '../../../../data/providers/database_provider.dart';
 import '../../../widgets/apple_dropdown.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
 
+/// Intent for save action
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
+
 /// Modal dialog for adding/editing debts
 class AddDebtModal extends ConsumerStatefulWidget {
   final DebtEntity? existingDebt;
@@ -48,6 +53,11 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
   final _interestRateController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _contactInfoController = TextEditingController();
+  final _personNameFocusNode = FocusNode();
+  final _amountFocusNode = FocusNode();
+  final _interestRateFocusNode = FocusNode();
+  final _descriptionFocusNode = FocusNode();
+  final _contactInfoFocusNode = FocusNode();
 
   DebtType _selectedType = DebtType.owed;
   String? _selectedWalletId;
@@ -80,6 +90,11 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
     _interestRateController.dispose();
     _descriptionController.dispose();
     _contactInfoController.dispose();
+    _personNameFocusNode.dispose();
+    _amountFocusNode.dispose();
+    _interestRateFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    _contactInfoFocusNode.dispose();
     super.dispose();
   }
 
@@ -88,7 +103,32 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
     final isDark = ref.watch(isDarkModeProvider);
     final wallets = ref.watch(walletsProvider);
 
-    return Dialog(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
+      },
+      child: Actions(
+        actions: {
+          _SaveIntent: CallbackAction<_SaveIntent>(
+            onInvoke: (_) {
+              if (!_isLoading) {
+                _saveDebt();
+              }
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              if (!_isLoading) {
+                _saveDebt();
+              }
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
         width: 500,
@@ -161,6 +201,9 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
             // Actions
             _buildActions(isDark),
           ],
+        ),
+      ),
+          ),
         ),
       ),
     );
@@ -347,6 +390,9 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
           child: TextField(
             controller: _personNameController,
+            focusNode: _personNameFocusNode,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _amountFocusNode.requestFocus(),
             style: AppTypography.bodyMedium(
               isDark
                   ? AppColors.darkTextPrimary
@@ -406,7 +452,10 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
           child: TextField(
             controller: _amountController,
+            focusNode: _amountFocusNode,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _interestRateFocusNode.requestFocus(),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
             ],
@@ -470,7 +519,10 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
           child: TextField(
             controller: _interestRateController,
+            focusNode: _interestRateFocusNode,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _descriptionFocusNode.requestFocus(),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
             ],
@@ -651,7 +703,10 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
           child: TextField(
             controller: _descriptionController,
+            focusNode: _descriptionFocusNode,
             maxLines: 3,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) => _contactInfoFocusNode.requestFocus(),
             style: AppTypography.bodyMedium(
               isDark
                   ? AppColors.darkTextPrimary
@@ -714,7 +769,14 @@ class _AddDebtModalState extends ConsumerState<AddDebtModal> {
           ),
           child: TextField(
             controller: _contactInfoController,
+            focusNode: _contactInfoFocusNode,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (!_isLoading) {
+                _saveDebt();
+              }
+            },
             style: AppTypography.bodyMedium(
               isDark
                   ? AppColors.darkTextPrimary

@@ -28,6 +28,8 @@ class AppleDropdown<T> extends StatefulWidget {
   final IconData? leadingIcon;
   final double? width;
   final String? hint;
+  final FocusNode? focusNode;
+  final VoidCallback? onSubmitted;
 
   const AppleDropdown({
     super.key,
@@ -38,6 +40,8 @@ class AppleDropdown<T> extends StatefulWidget {
     this.leadingIcon,
     this.width,
     this.hint,
+    this.focusNode,
+    this.onSubmitted,
   });
 
   @override
@@ -53,10 +57,15 @@ class _AppleDropdownState<T> extends State<AppleDropdown<T>>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<double> _slideAnimation;
+  late FocusNode _internalFocusNode;
+  FocusNode get _focusNode => widget.focusNode ?? _internalFocusNode;
 
   @override
   void initState() {
     super.initState();
+    if (widget.focusNode == null) {
+      _internalFocusNode = FocusNode();
+    }
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -80,12 +89,18 @@ class _AppleDropdownState<T> extends State<AppleDropdown<T>>
         curve: Curves.easeOutCubic,
       ),
     );
+    
+    // Don't auto-open dropdown on focus - user must click/tap to open
+    // This allows Enter key to skip dropdowns and navigate between text fields only
   }
 
   @override
   void dispose() {
     _removeOverlay();
     _animationController.dispose();
+    if (widget.focusNode == null) {
+      _internalFocusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -123,6 +138,23 @@ class _AppleDropdownState<T> extends State<AppleDropdown<T>>
   }
 
   String get _selectedLabel {
+    if (widget.items.isEmpty) {
+      return widget.hint ?? '';
+    }
+    
+    // Handle nullable types - check if value is null
+    if (widget.value == null) {
+      // Try to find a null item, otherwise return first item or hint
+      try {
+        final nullItem = widget.items.firstWhere((item) => item.value == null);
+        return nullItem.label;
+      } catch (e) {
+        // No null item found, return hint or first item
+        return widget.hint ?? widget.items.first.label;
+      }
+    }
+    
+    // Find matching item
     final item = widget.items.firstWhere(
       (item) => item.value == widget.value,
       orElse: () => widget.items.first,
@@ -284,11 +316,33 @@ class _AppleDropdownState<T> extends State<AppleDropdown<T>>
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: GestureDetector(
-        onTap: _toggleDropdown,
-        child: AnimatedContainer(
+    return Focus(
+      focusNode: _focusNode,
+      skipTraversal: false, // Allow focus but don't handle Enter
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter) {
+            // If dropdown has focus and onSubmitted is provided, move to next field
+            // This allows navigation to skip dropdowns when coming from text fields
+            if (widget.onSubmitted != null && _focusNode.hasFocus) {
+              widget.onSubmitted!();
+              return KeyEventResult.handled;
+            }
+            // Otherwise, ignore Enter so text fields can handle it
+            return KeyEventResult.ignored;
+          } else if (_isOpen && event.logicalKey == LogicalKeyboardKey.escape) {
+            _closeDropdown();
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: CompositedTransformTarget(
+        link: _layerLink,
+        child: GestureDetector(
+          onTap: _toggleDropdown,
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -356,6 +410,7 @@ class _AppleDropdownState<T> extends State<AppleDropdown<T>>
             ],
           ),
         ),
+      ),
       ),
     );
   }

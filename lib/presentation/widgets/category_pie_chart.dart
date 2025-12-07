@@ -170,11 +170,18 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
   }
 
   List<PieChartSectionData> _buildSections() {
+    // Handle edge case: empty data or zero total
+    if (widget.data.isEmpty || widget.totalAmount == 0) {
+      return [];
+    }
+    
     return widget.data.asMap().entries.map((entry) {
       final index = entry.key;
       final data = entry.value;
       final isTouched = index == touchedIndex;
-      final percentage = (data.amount / widget.totalAmount * 100);
+      final percentage = widget.totalAmount > 0 
+          ? (data.amount / widget.totalAmount * 100)
+          : 0.0;
 
       return PieChartSectionData(
         color: data.color,
@@ -219,7 +226,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
   }
 
   Widget _buildLegendItem(CategoryChartData data, int index) {
-    final percentage = (data.amount / widget.totalAmount * 100);
+    final percentage = widget.totalAmount > 0 
+        ? (data.amount / widget.totalAmount * 100)
+        : 0.0;
     final isHighlighted = index == touchedIndex;
 
     return Padding(
