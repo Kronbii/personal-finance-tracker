@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
+import '../../../app/utils/responsive.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/drift/tables/transactions_table.dart';
 import '../../widgets/transaction_item.dart';
@@ -60,7 +61,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           // Month selector
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: Responsive.horizontalPaddingInsets(context),
               child: _buildMonthSelector(isDark),
             ),
           ),
@@ -68,7 +69,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           // Filters and search
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: Responsive.horizontalPaddingInsets(context),
               child: Column(
                 children: [
                   _buildSearchBar(isDark),

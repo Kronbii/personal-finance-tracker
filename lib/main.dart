@@ -23,7 +23,7 @@ void main() async {
       // Configure window for desktop app
       const windowOptions = WindowOptions(
         size: Size(1400, 900),
-        minimumSize: Size(1024, 700),
+        minimumSize: Size(1200, 800), // Increased minimum size to prevent overflow
         center: true,
         backgroundColor: Color(0xFF0D0D0F), // Dark background color
         skipTaskbar: false,
@@ -39,6 +39,20 @@ void main() async {
           debugPrint('Failed to show window: $e');
         }
       });
+
+      // Explicitly set minimum size to ensure it's enforced (especially on Linux)
+      // Try multiple times with a small delay to ensure it takes effect
+      for (int i = 0; i < 3; i++) {
+        try {
+          await windowManager.setMinimumSize(const Size(1200, 800));
+          // Also set geometry hints if available
+          await Future.delayed(const Duration(milliseconds: 100));
+        } catch (e) {
+          if (kDebugMode && i == 2) {
+            debugPrint('Failed to set minimum size after retries: $e');
+          }
+        }
+      }
 
       // Enable window controls (with error handling for Linux compatibility)
       final windowControls = [

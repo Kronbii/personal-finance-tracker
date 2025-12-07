@@ -52,7 +52,11 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "REE");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  gtk_window_set_default_size(window, 1400, 900);
+  
+  // Set minimum window size to prevent resizing below usable size
+  // This enforces the constraint at the native GTK level
+  gtk_widget_set_size_request(GTK_WIDGET(window), 1200, 800);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(

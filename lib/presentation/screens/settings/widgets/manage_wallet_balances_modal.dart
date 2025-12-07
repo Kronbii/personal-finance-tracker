@@ -8,6 +8,7 @@ import '../../../../app/theme/theme_provider.dart';
 import '../../../../data/drift/database.dart';
 import '../../../../data/providers/database_provider.dart';
 import '../../dashboard/providers/dashboard_providers.dart';
+import '../../monthly_insights/providers/monthly_insights_providers.dart';
 import 'add_wallet_balance_modal.dart';
 
 /// Modal for managing wallet balances by month
@@ -312,6 +313,9 @@ class _ManageWalletBalancesModalState
 
     if (result == true && mounted) {
       setState(() {}); // Refresh the list
+      // Invalidate the provider for the month that was updated
+      final month = DateTime(_selectedDate.year, _selectedDate.month, 1);
+      ref.invalidate(monthWalletBalancesProvider(month));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(

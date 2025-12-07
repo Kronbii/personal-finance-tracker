@@ -15,6 +15,7 @@ class WalletCard extends StatelessWidget {
   final int gradientIndex;
   final VoidCallback? onTap;
   final bool isCompact;
+  final bool isFullWidth;
   final int animationDelay;
 
   const WalletCard({
@@ -25,6 +26,7 @@ class WalletCard extends StatelessWidget {
     this.gradientIndex = 0,
     this.onTap,
     this.isCompact = false,
+    this.isFullWidth = false,
     this.animationDelay = 0,
   });
 
@@ -38,8 +40,8 @@ class WalletCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          width: isCompact ? 180 : 240,
-          padding: EdgeInsets.all(isCompact ? 16 : 20),
+          width: isFullWidth ? double.infinity : (isCompact ? 180 : 240),
+          padding: EdgeInsets.all(isFullWidth ? 24 : (isCompact ? 16 : 20)),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -55,75 +57,143 @@ class WalletCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: isCompact ? 32 : 40,
-                    height: isCompact ? 32 : 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(isCompact ? 8 : 12),
-                    ),
-                    child: Icon(
-                      LucideIcons.wallet,
-                      size: isCompact ? 16 : 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      currency,
-                      style: AppTypography.labelSmall(Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: isCompact ? 12 : 20),
-              Text(
-                name,
-                style: AppTypography.labelMedium(
-                  Colors.white.withValues(alpha: 0.8),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _formatCurrency(balance, currency),
-                style: isCompact
-                    ? AppTypography.moneySmall(Colors.white)
-                    : AppTypography.moneyMedium(Colors.white),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (!isCompact) ...[
-                const SizedBox(height: 16),
-                Row(
+          child: isFullWidth
+              ? Row(
                   children: [
-                    const Spacer(),
+                    // Icon section
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        LucideIcons.wallet,
+                        size: 28,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    // Content section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  style: AppTypography.titleMedium(Colors.white),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  currency,
+                                  style: AppTypography.labelSmall(Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _formatCurrency(balance, currency),
+                            style: AppTypography.moneyLarge(Colors.white),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Chevron icon
                     Icon(
                       LucideIcons.chevronRight,
-                      size: 18,
+                      size: 24,
                       color: Colors.white.withValues(alpha: 0.6),
                     ),
                   ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: isCompact ? 32 : 40,
+                          height: isCompact ? 32 : 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(isCompact ? 8 : 12),
+                          ),
+                          child: Icon(
+                            LucideIcons.wallet,
+                            size: isCompact ? 16 : 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            currency,
+                            style: AppTypography.labelSmall(Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isCompact ? 12 : 20),
+                    Text(
+                      name,
+                      style: AppTypography.labelMedium(
+                        Colors.white.withValues(alpha: 0.8),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatCurrency(balance, currency),
+                      style: isCompact
+                          ? AppTypography.moneySmall(Colors.white)
+                          : AppTypography.moneyMedium(Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (!isCompact) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Spacer(),
+                          Icon(
+                            LucideIcons.chevronRight,
+                            size: 18,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
         ),
       ),
     )

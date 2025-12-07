@@ -29,6 +29,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     final isDark = ref.watch(isDarkModeProvider);
     final currentLocation = GoRouterState.of(context).uri.toString();
     final selectedIndex = _getSelectedIndex(currentLocation);
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Auto-collapse sidebar on small screens
+    final shouldExpand = screenWidth >= 1300;
+    if (_isExpanded && !shouldExpand) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _isExpanded = false);
+      });
+    }
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
@@ -44,7 +53,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOutCubic,
-                  width: _isExpanded ? 260 : 80,
+                  width: _isExpanded && shouldExpand ? 260 : 80,
                   child: _buildSidebar(isDark, selectedIndex),
                 ),
                 // Main content area
@@ -188,17 +197,21 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Widget _buildHeader(bool isDark) {
+    final iconSize = _isExpanded ? 44.0 : 36.0;
+    final padding = _isExpanded ? 20.0 : 12.0;
+    
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: _isExpanded ? 20 : 16,
+        horizontal: padding,
         vertical: 24,
       ),
       child: Row(
+        mainAxisAlignment: _isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
         children: [
           // App Icon
           Container(
-            width: 44,
-            height: 44,
+            width: iconSize,
+            height: iconSize,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
@@ -217,10 +230,13 @@ class _AppShellState extends ConsumerState<AppShell> {
                 ),
               ],
             ),
-            child: const Icon(
-              LucideIcons.wallet,
-              color: Colors.white,
-              size: 22,
+            child: Center(
+              child: Image.asset(
+                'assets/icon/app_icon.png',
+                width: iconSize,
+                height: iconSize,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
 

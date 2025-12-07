@@ -7,6 +7,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
+import '../../../app/utils/responsive.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/drift/daos/transactions_dao.dart';
 import '../../../data/drift/tables/transactions_table.dart';
@@ -40,39 +41,49 @@ class MonthlyInsightsScreen extends ConsumerWidget {
 
           // Summary cards
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: _buildSummaryCards(ref, isDark),
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          SliverToBoxAdapter(child: SizedBox(height: Responsive.rowSpacing(context))),
 
           // Wallet balances section
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: _buildWalletBalancesSection(context, ref, isDark, selectedMonth),
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          SliverToBoxAdapter(child: SizedBox(height: Responsive.rowSpacing(context))),
 
           // Category breakdowns
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: _buildCategoryBreakdowns(ref, isDark),
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          SliverToBoxAdapter(child: SizedBox(height: Responsive.rowSpacing(context))),
 
           // Detailed stats
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: _buildDetailedStats(ref, isDark),
+            ),
+          ),
+
+          SliverToBoxAdapter(child: SizedBox(height: Responsive.rowSpacing(context))),
+
+          // Income breakdown section
+          SliverPadding(
+            padding: Responsive.horizontalPaddingInsets(context),
+            sliver: SliverToBoxAdapter(
+              child: _buildIncomeBreakdownSection(ref, isDark),
             ),
           ),
 
@@ -905,6 +916,299 @@ class MonthlyInsightsScreen extends ConsumerWidget {
     return iconMap[iconName] ?? LucideIcons.circle;
   }
 
+  Widget _buildIncomeBreakdownSection(WidgetRef ref, bool isDark) {
+    final monthSummary = ref.watch(monthSummaryProvider);
+    final expensesByCategory = ref.watch(monthExpensesByCategoryProvider);
+    final categoryMap = ref.watch(monthCategoryMapProvider);
+
+    return monthSummary.when(
+      data: (summary) => expensesByCategory.when(
+        data: (expenses) => categoryMap.when(
+          data: (categories) {
+            if (summary.totalIncome <= 0) {
+              return Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    'No income data for this month',
+                    style: AppTypography.bodyMedium(
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final savingsPercentage =
+                (summary.netSavings / summary.totalIncome * 100).clamp(0.0, 100.0);
+            final expensesPercentage =
+                (summary.totalExpenses / summary.totalIncome * 100).clamp(0.0, 100.0);
+
+            // Sort expenses by amount (descending)
+            final sortedExpenses = expenses.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value));
+
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.accentBlue.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          LucideIcons.pieChart,
+                          size: 20,
+                          color: AppColors.accentBlue,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Income Breakdown',
+                        style: AppTypography.titleLarge(
+                          isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Total income header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.darkSurfaceElevated
+                          : AppColors.lightSurfaceHighlight,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Total Income',
+                            style: AppTypography.titleMedium(
+                              isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _formatCurrency(summary.totalIncome, ref),
+                          style: AppTypography.moneyLarge(
+                            AppColors.income,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Savings row
+                  _buildIncomeBreakdownRow(
+                    isDark: isDark,
+                    label: 'Savings',
+                    amount: summary.netSavings,
+                    percentage: savingsPercentage,
+                    color: summary.netSavings >= 0
+                        ? AppColors.savings
+                        : AppColors.expense,
+                    ref: ref,
+                  ),
+                  const SizedBox(height: 12),
+                  // Total expenses row
+                  _buildIncomeBreakdownRow(
+                    isDark: isDark,
+                    label: 'Total Expenses',
+                    amount: summary.totalExpenses,
+                    percentage: expensesPercentage,
+                    color: AppColors.expense,
+                    ref: ref,
+                  ),
+                  if (sortedExpenses.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Expenses by Category',
+                      style: AppTypography.titleSmall(
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Expense categories
+                    ...sortedExpenses.map((entry) {
+                      final category = categories[entry.key];
+                      final categoryPercentage =
+                          (entry.value / summary.totalIncome * 100).clamp(0.0, 100.0);
+                      final color = _parseHexColor(category?.colorHex ?? '#8E8E93');
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildIncomeBreakdownRow(
+                          isDark: isDark,
+                          label: category?.name ?? 'Unknown',
+                          amount: entry.value,
+                          percentage: categoryPercentage,
+                          color: color,
+                          ref: ref,
+                        ),
+                      );
+                    }),
+                  ],
+                ],
+              ),
+            ).animate(delay: 250.ms).fadeIn(duration: 400.ms);
+          },
+          loading: () => Container(
+            height: 200,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                width: 1,
+              ),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          error: (_, __) => _buildErrorCard(isDark, 'Error loading categories'),
+        ),
+        loading: () => Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+              width: 1,
+            ),
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => _buildErrorCard(isDark, 'Error loading expenses'),
+      ),
+      loading: () => Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+            width: 1,
+          ),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => _buildErrorCard(isDark, 'Error loading summary'),
+    );
+  }
+
+  Widget _buildIncomeBreakdownRow({
+    required bool isDark,
+    required String label,
+    required double amount,
+    required double percentage,
+    required Color color,
+    required WidgetRef ref,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceElevated
+            : AppColors.lightSurfaceHighlight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTypography.bodyMedium(
+                    isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                '${percentage.toStringAsFixed(1)}%',
+                style: AppTypography.titleMedium(
+                  color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: percentage / 100,
+              backgroundColor: isDark
+                  ? AppColors.darkDivider
+                  : AppColors.lightDivider,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                _formatCurrency(amount, ref),
+                style: AppTypography.moneySmall(
+                  isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildWalletBalancesSection(
     BuildContext context,
     WidgetRef ref,
@@ -913,13 +1217,40 @@ class MonthlyInsightsScreen extends ConsumerWidget {
   ) {
     final wallets = ref.watch(walletsProvider);
     final monthBalances = ref.watch(monthWalletBalancesProvider(selectedMonth));
+    final monthSummary = ref.watch(monthSummaryProvider);
+    
+    // Get previous month for comparison
+    final previousMonth = DateTime(selectedMonth.year, selectedMonth.month - 1, 1);
+    final previousMonthBalances = ref.watch(monthWalletBalancesProvider(previousMonth));
 
     return wallets.when(
       data: (walletList) => monthBalances.when(
-        data: (balances) {
-          final totalBalance = balances.values.fold(0.0, (sum, val) => sum + val);
-          
-          return Container(
+        data: (balances) => previousMonthBalances.when(
+          data: (prevBalances) => monthSummary.when(
+            data: (summary) {
+              final totalBalance = balances.values.fold(0.0, (sum, val) => sum + val);
+              final totalPrevBalance = prevBalances.values.fold(0.0, (sum, val) => sum + val);
+              final walletBalanceChange = totalBalance - totalPrevBalance;
+              final netSavings = summary.netSavings;
+              
+              // Check if there's a discrepancy (allow small rounding differences)
+              final discrepancy = (walletBalanceChange - netSavings).abs();
+              final hasDiscrepancy = discrepancy > 0.01; // Allow 1 cent difference for rounding
+              
+              return Column(
+                children: [
+                  // Warning banner if there's a discrepancy
+                  if (hasDiscrepancy) ...[
+                    _buildDiscrepancyWarning(
+                      isDark: isDark,
+                      netSavings: netSavings,
+                      walletBalanceChange: walletBalanceChange,
+                      discrepancy: discrepancy,
+                      ref: ref,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
@@ -945,7 +1276,7 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () => _showManageBalances(context, selectedMonth),
+                      onPressed: () => _showManageBalances(context, ref, selectedMonth),
                       icon: const Icon(LucideIcons.edit, size: 16),
                       label: Text(
                         'Update',
@@ -1059,10 +1390,40 @@ class MonthlyInsightsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-              ],
+                ],
+              ),
+                  ),
+                ],
+              );
+            },
+            loading: () => Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                  width: 1,
+                ),
+              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-          );
-        },
+            error: (_, __) => _buildErrorCard(isDark, 'Error loading summary'),
+          ),
+          loading: () => Container(
+            height: 200,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+                width: 1,
+              ),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          error: (_, __) => _buildErrorCard(isDark, 'Error loading previous balances'),
+        ),
         loading: () => Container(
           height: 200,
           decoration: BoxDecoration(
@@ -1093,11 +1454,75 @@ class MonthlyInsightsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showManageBalances(BuildContext context, DateTime month) async {
+  Widget _buildDiscrepancyWarning({
+    required bool isDark,
+    required double netSavings,
+    required double walletBalanceChange,
+    required double discrepancy,
+    required WidgetRef ref,
+  }) {
+    final isMissing = walletBalanceChange < netSavings;
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.accentRed.withValues(alpha: isDark ? 0.15 : 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.accentRed.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.accentRed.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              LucideIcons.alertTriangle,
+              size: 20,
+              color: AppColors.accentRed,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Missing Money Detected',
+                  style: AppTypography.titleMedium(
+                    AppColors.accentRed,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isMissing
+                      ? 'Your wallet balances increased by ${_formatCurrency(walletBalanceChange, ref)}, but your net savings are ${_formatCurrency(netSavings, ref)}. There is ${_formatCurrency(discrepancy, ref)} missing.'
+                      : 'Your wallet balances increased by ${_formatCurrency(walletBalanceChange, ref)}, but your net savings are ${_formatCurrency(netSavings, ref)}. There is ${_formatCurrency(discrepancy, ref)} unaccounted for.',
+                  style: AppTypography.bodySmall(
+                    isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showManageBalances(BuildContext context, WidgetRef ref, DateTime month) async {
     final result = await ManageWalletBalancesModal.show(context);
     if (result == true && context.mounted) {
-      // Refresh the balances
-      // The provider will automatically update
+      // Invalidate the provider to refresh the balances
+      ref.invalidate(monthWalletBalancesProvider(month));
     }
   }
 }

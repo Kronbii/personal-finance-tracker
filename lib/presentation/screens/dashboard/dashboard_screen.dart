@@ -7,6 +7,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
+import '../../../app/utils/responsive.dart';
 import '../../../data/services/currency_formatter.dart';
 import '../../../data/providers/currency_provider.dart';
 import '../../widgets/category_pie_chart.dart';
@@ -14,6 +15,7 @@ import '../../widgets/stat_card.dart';
 import '../../widgets/sync_button.dart';
 import '../../widgets/wallet_card.dart';
 import '../settings/widgets/add_wallet_modal.dart';
+import '../monthly_insights/providers/monthly_insights_providers.dart';
 import 'providers/dashboard_providers.dart';
 
 /// Dashboard screen - Main overview of financial data
@@ -45,7 +47,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
           // Main content
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,6 +59,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                   // Monthly summary text
                   _buildMonthlySummary(isDark),
+
+                  const SizedBox(height: 24),
+
+                  // Missing money warning
+                  _buildDiscrepancyWarning(isDark),
 
                   const SizedBox(height: 24),
 
@@ -80,7 +87,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildHeader(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: Responsive.allPaddingInsets(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -123,6 +130,62 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final allTimeSavings = ref.watch(allTimeSavingsProvider);
     final monthlyIncome = ref.watch(monthlyIncomeProvider);
     final monthlyExpenses = ref.watch(monthlyExpensesProvider);
+    final isSmallScreen = Responsive.isSmallScreen(context);
+
+    // Use Column on small screens, Row on larger screens
+    if (isSmallScreen) {
+      return Column(
+        children: [
+          allTimeSavings.when(
+            data: (savings) => StatCard(
+              title: 'Total Savings',
+              value: _formatCurrency(savings),
+              subtitle: 'All-time net savings',
+              icon: LucideIcons.piggyBank,
+              iconColor: AppColors.savings,
+              gradientColors: AppColors.savingsGradient,
+              isDark: isDark,
+            ),
+            loading: () => _buildLoadingCard(isDark),
+            error: (_, __) => _buildErrorCard(isDark, 'Unable to load'),
+          ),
+          SizedBox(height: Responsive.columnSpacing(context)),
+          Row(
+            children: [
+              Expanded(
+                child: monthlyIncome.when(
+                  data: (income) => StatCard(
+                    title: 'Income',
+                    value: _formatCurrency(income),
+                    subtitle: _getCurrentMonthName(),
+                    icon: LucideIcons.trendingUp,
+                    iconColor: AppColors.income,
+                    isDark: isDark,
+                  ),
+                  loading: () => _buildLoadingCard(isDark),
+                  error: (_, __) => _buildErrorCard(isDark, 'Error'),
+                ),
+              ),
+              SizedBox(width: Responsive.columnSpacing(context)),
+              Expanded(
+                child: monthlyExpenses.when(
+                  data: (expenses) => StatCard(
+                    title: 'Expenses',
+                    value: _formatCurrency(expenses),
+                    subtitle: _getCurrentMonthName(),
+                    icon: LucideIcons.trendingDown,
+                    iconColor: AppColors.expense,
+                    isDark: isDark,
+                  ),
+                  loading: () => _buildLoadingCard(isDark),
+                  error: (_, __) => _buildErrorCard(isDark, 'Error'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
 
     return Row(
       children: [
@@ -143,7 +206,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             error: (_, __) => _buildErrorCard(isDark, 'Unable to load'),
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: Responsive.columnSpacing(context)),
 
         // Monthly income
         Expanded(
@@ -160,7 +223,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             error: (_, __) => _buildErrorCard(isDark, 'Error'),
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: Responsive.columnSpacing(context)),
 
         // Monthly expenses
         Expanded(
@@ -298,6 +361,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildMainContent(bool isDark) {
+    final isSmallScreen = Responsive.isSmallScreen(context);
+
+    if (isSmallScreen) {
+      // Stack vertically on small screens
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCategoryBreakdown(isDark),
+          SizedBox(height: Responsive.rowSpacing(context)),
+          _buildWalletsSection(isDark),
+        ],
+      );
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -306,7 +383,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           flex: 3,
           child: _buildCategoryBreakdown(isDark),
         ),
-        const SizedBox(width: 24),
+        SizedBox(width: Responsive.columnSpacing(context)),
 
         // Wallets section
         Expanded(
@@ -408,14 +485,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                       return Padding(
                         padding: EdgeInsets.only(
-                          bottom: index < walletList.length - 1 ? 12 : 0,
+                          bottom: index < walletList.length - 1 ? 16 : 0,
                         ),
                         child: WalletCard(
                           name: wallet.name,
                           balance: balance,
                           currency: wallet.currency,
                           gradientIndex: wallet.gradientIndex,
-                          isCompact: true,
+                          isFullWidth: true,
                           animationDelay: 400 + (index * 100),
                           onTap: () {
                             // TODO: Navigate to wallet details
@@ -612,6 +689,103 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return Color(int.parse('FF$hex', radix: 16));
     }
     return AppColors.accentBlue;
+  }
+
+  Widget _buildDiscrepancyWarning(bool isDark) {
+    final monthlyIncome = ref.watch(monthlyIncomeProvider);
+    final monthlyExpenses = ref.watch(monthlyExpensesProvider);
+    final now = DateTime.now();
+    final currentMonth = DateTime(now.year, now.month, 1);
+    final previousMonth = DateTime(now.year, now.month - 1, 1);
+    final currentMonthBalances = ref.watch(monthWalletBalancesProvider(currentMonth));
+    final previousMonthBalances = ref.watch(monthWalletBalancesProvider(previousMonth));
+
+    return monthlyIncome.when(
+      data: (income) => monthlyExpenses.when(
+        data: (expenses) => currentMonthBalances.when(
+          data: (currentBalances) => previousMonthBalances.when(
+            data: (prevBalances) {
+              final netSavings = income - expenses;
+              final totalCurrentBalance = currentBalances.values.fold(0.0, (sum, val) => sum + val);
+              final totalPrevBalance = prevBalances.values.fold(0.0, (sum, val) => sum + val);
+              final walletBalanceChange = totalCurrentBalance - totalPrevBalance;
+              
+              // Check if there's a discrepancy (allow small rounding differences)
+              final discrepancy = (walletBalanceChange - netSavings).abs();
+              final hasDiscrepancy = discrepancy > 0.01; // Allow 1 cent difference for rounding
+              
+              if (!hasDiscrepancy) {
+                return const SizedBox.shrink();
+              }
+              
+              final isMissing = walletBalanceChange < netSavings;
+              
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.accentRed.withValues(alpha: isDark ? 0.15 : 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.accentRed.withValues(alpha: 0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.accentRed.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        LucideIcons.alertTriangle,
+                        size: 20,
+                        color: AppColors.accentRed,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Missing Money Detected',
+                            style: AppTypography.titleMedium(
+                              AppColors.accentRed,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isMissing
+                                ? 'Your wallet balances increased by ${_formatCurrency(walletBalanceChange)}, but your net savings are ${_formatCurrency(netSavings)}. There is ${_formatCurrency(discrepancy)} missing.'
+                                : 'Your wallet balances increased by ${_formatCurrency(walletBalanceChange)}, but your net savings are ${_formatCurrency(netSavings)}. There is ${_formatCurrency(discrepancy)} unaccounted for.',
+                            style: AppTypography.bodySmall(
+                              isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate(delay: 200.ms).fadeIn(duration: 400.ms);
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
   }
 
   Widget _buildWalletBalancesSection(bool isDark) {

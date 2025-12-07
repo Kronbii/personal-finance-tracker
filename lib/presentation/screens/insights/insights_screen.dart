@@ -7,6 +7,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
+import '../../../app/utils/responsive.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/services/currency_formatter.dart';
 import '../../../data/providers/currency_provider.dart';
@@ -36,13 +37,13 @@ class InsightsScreen extends ConsumerWidget {
         slivers: [
           // Header with year selector
           SliverToBoxAdapter(
-            child: _buildHeaderWithYearSelector(ref, isDark),
+            child: _buildHeaderWithYearSelector(context, ref, isDark),
           ),
 
           // Tab bar
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: Responsive.horizontalPaddingInsets(context),
               child: _buildTabBar(context, ref, isDark, selectedTab),
             ),
           ),
@@ -63,9 +64,9 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderWithYearSelector(WidgetRef ref, bool isDark) {
+  Widget _buildHeaderWithYearSelector(BuildContext context, WidgetRef ref, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: Responsive.allPaddingInsets(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

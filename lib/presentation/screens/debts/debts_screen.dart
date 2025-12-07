@@ -7,6 +7,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../app/theme/theme_provider.dart';
+import '../../../app/utils/responsive.dart';
 import '../../../data/drift/database.dart';
 import '../../../data/drift/tables/debts_table.dart';
 import '../../../data/services/currency_formatter.dart';
@@ -43,12 +44,12 @@ class DebtsScreen extends ConsumerWidget {
         slivers: [
           // Header
           SliverToBoxAdapter(
-            child: _buildHeader(isDark),
+            child: _buildHeader(context, isDark),
           ),
 
           // Content
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: Responsive.horizontalPaddingInsets(context),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,9 +142,9 @@ class DebtsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(BuildContext context, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: Responsive.allPaddingInsets(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
