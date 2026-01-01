@@ -116,30 +116,20 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
     final expenseCategories = ref.watch(enabledExpenseCategoriesProvider);
     final incomeCategories = ref.watch(enabledIncomeCategoriesProvider);
 
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.space): _SaveIntent(),
-      },
-      child: Actions(
-        actions: {
-          _SaveIntent: CallbackAction<_SaveIntent>(
-            onInvoke: (_) {
-              final validRows = _rows.where((row) {
-                final amount = double.tryParse(row.amountController.text);
-                return amount != null &&
-                    amount > 0 &&
-                    row.selectedCategoryId != null;
-              }).length;
-              if (validRows > 0 && !_isSaving) {
-                _saveAll(validRows);
-              }
-            },
-          ),
-        },
-        child: Focus(
+    return Focus(
           autofocus: true,
           onKeyEvent: (node, event) {
             if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+              // Check if any text field has focus - if so, let it handle the space
+              final hasTextFieldFocus = _rows.any((row) =>
+                  row.amountFocusNode.hasFocus ||
+                  row.noteFocusNode.hasFocus);
+              
+              if (hasTextFieldFocus) {
+                return KeyEventResult.ignored; // Let text field handle space
+              }
+              
+              // Only handle space for save if not in a text field
               final validRows = _rows.where((row) {
                 final amount = double.tryParse(row.amountController.text);
                 return amount != null &&
@@ -183,8 +173,6 @@ class _BulkEntryScreenState extends ConsumerState<BulkEntryScreen> {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 
