@@ -68,56 +68,6 @@
 
 ---
 
-## 📸 Screenshots & Demo
-
-> **Note:** Add your screenshots to `assets/screenshots/` directory to display them here.
-
-### Screenshots
-
-<div align="center">
-<table>
-  <tr>
-    <td align="center"><b>Dashboard</b></td>
-    <td align="center"><b>Transactions</b></td>
-  </tr>
-  <tr>
-    <td><img src="assets/screenshots/dashboard.png" alt="Dashboard" width="400"></td>
-    <td><img src="assets/screenshots/transactions.png" alt="Transactions" width="400"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Insights</b></td>
-    <td align="center"><b>Monthly Insights</b></td>
-  </tr>
-  <tr>
-    <td><img src="assets/screenshots/insights.png" alt="Insights" width="400"></td>
-    <td><img src="assets/screenshots/monthly-insights.png" alt="Monthly Insights" width="400"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Bulk Entry</b></td>
-    <td align="center"><b>Settings</b></td>
-  </tr>
-  <tr>
-    <td><img src="assets/screenshots/bulk-entry.png" alt="Bulk Entry" width="400"></td>
-    <td><img src="assets/screenshots/settings.png" alt="Settings" width="400"></td>
-  </tr>
-</table>
-</div>
-
-<details>
-<summary><b>🌙 Dark Mode Screenshots</b></summary>
-<br>
-<div align="center">
-<table>
-  <tr>
-    <td><img src="assets/screenshots/dashboard-dark.png" alt="Dashboard Dark" width="400"></td>
-    <td><img src="assets/screenshots/transactions-dark.png" alt="Transactions Dark" width="400"></td>
-  </tr>
-</table>
-</div>
-</details>
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
