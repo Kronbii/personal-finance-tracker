@@ -24,7 +24,6 @@
 - [Features](#-features)
 - [Screenshots](#-screenshots--demo)
 - [Getting Started](#-getting-started)
-- [Keyboard Shortcuts](#-keyboard-shortcuts)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Data Storage](#-data-storage)
@@ -106,27 +105,6 @@ On first launch, the app will:
 - Create a local database at `~/.local/share/ree/ree.db`
 - Set up default categories and settings
 - Guide you through creating your first wallet
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-REE is optimized for keyboard navigation and efficiency:
-
-### Navigation
-- **Enter** - Move to next field in forms (text fields only)
-- **Tab** - Standard focus traversal
-- **Escape** - Close modals and dropdowns
-
-### Bulk Entry Mode
-- **Enter** - Navigate sequentially between amount and note fields (skips dropdowns)
-- **Space** - Save all valid transactions (when not typing in text fields)
-
-### General
-- **Space** - Trigger Add/Save buttons in modals (when not typing)
-- **Escape** - Close any open modal or dropdown
-
-> **Note:** Keyboard shortcuts are context-aware. When typing in text fields, Space will insert a space character instead of triggering shortcuts.
 
 ---
 
